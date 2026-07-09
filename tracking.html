@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your diagnostic test booking in real-time with Doorstep Diagnostics. See your phlebotomist's live location, ETA, and status updates.">
+    <title>Live Tracking – Doorstep Diagnostics</title>
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+        /* ══════════════════════════════════════════════
+           LIVE TRACKING PAGE – STYLES
+           ══════════════════════════════════════════════ */
+
+        body {
+            background: var(--off);
+            min-height: 100vh;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0,180,216,0.1);
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-logo {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--teal), var(--navy));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .topbar-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-title .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .topbar-id {
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(0,180,216,0.12), rgba(3,4,94,0.08));
+            color: var(--teal-dark);
+            padding: 5px 12px;
+            border-radius: 50px;
+            letter-spacing: 0.08em;
+        }
+
+        /* ── MAIN CONTAINER ── */
+        .tracking-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 16px 120px;
+        }
+
+        /* ── MAP SECTION ── */
+        .map-section {
+            background: linear-gradient(135deg, #03045E 0%, #0a1628 40%, #021526 100%);
+            border-radius: 24px;
+            margin: 16px 0;
+            padding: 28px 20px 24px;
+            position: relative;
+            overflow: hidden;
+            min-height: 260px;
+        }
+
+        .map-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 50%, rgba(0,180,216,0.08) 0%, transparent 70%),
+                        radial-gradient(ellipse at 70% 40%, rgba(0,180,216,0.06) 0%, transparent 60%);
+        }
+
+        .map-stars {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .map-stars span {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: twinkle 3s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            100% { opacity: 0.8; }
+        }
+
+        .map-svg-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 160px;
+        }
+
+        .map-svg-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-route-path {
+            fill: none;
+            stroke: rgba(0,180,216,0.25);
+            stroke-width: 2;
+            stroke-dasharray: 8 6;
+            animation: dash-flow 1.5s linear infinite;
+        }
+
+        @keyframes dash-flow {
+            to { stroke-dashoffset: -28; }
+        }
+
+        .map-route-trail {
+            fill: none;
+            stroke: rgba(0,180,216,0.6);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s ease;
+        }
+
+        .map-tracker-dot {
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .map-point-label {
+            fill: rgba(255,255,255,0.7);
+            font-size: 11px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+        }
+
+        .map-point-icon {
+            font-size: 22px;
+        }
+
+        .map-overlays {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .eta-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 12px 18px;
+            color: white;
+        }
+
+        .eta-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 4px;
+        }
+
+        .eta-time {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+            color: var(--teal-light);
+        }
+
+        .eta-time span {
+            font-size: 0.85rem;
+            font-weight: 400;
+            font-family: 'DM Sans', sans-serif;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .distance-badge {
+            background: rgba(0,180,216,0.2);
+            border: 1px solid rgba(0,180,216,0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            color: var(--teal-light);
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ── STAGE ILLUSTRATION (non-map stages) ── */
+        .stage-illustration {
+            background: linear-gradient(135deg, #03045E 0%, #0a1628 60%, #021526 100%);
+            border-radius: 24px;
+            margin: 16px 0;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stage-illustration::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(0,180,216,0.1) 0%, transparent 70%);
+        }
+
+        .stage-icon-large {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+            animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .stage-illustration .stage-title-large {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stage-illustration .stage-sub-large {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.88rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* confirmed checkmark animation */
+        .confirm-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--teal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+            animation: ring-draw 0.8s ease forwards;
+        }
+
+        @keyframes ring-draw {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .confirm-ring svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .confirm-ring .checkmark-path {
+            stroke: var(--teal-light);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: check-draw 0.5s 0.4s ease forwards;
+        }
+
+        @keyframes check-draw {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .assigning-text {
+            color: var(--teal-light);
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 2;
+            margin-top: 8px;
+        }
+
+        .assigning-text .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(173,232,244,0.3);
+            border-top-color: var(--teal-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* arrived banner */
+        .arrived-banner {
+            background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(0,180,216,0.15));
+            border: 1px solid rgba(16,185,129,0.3);
+            border-radius: 14px;
+            padding: 12px 20px;
+            color: #6ee7b7;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.5s ease;
+        }
+
+        /* report-ready celebration */
+        .celebration-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            animation: confetti-fall 2s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(80px) rotate(720deg); opacity: 0; }
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .report-actions .btn {
+            font-size: 0.82rem;
+            padding: 10px 18px;
+        }
+
+        /* Lab transport animation */
+        .lab-transport {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .lab-transport-line {
+            flex: 1;
+            height: 3px;
+            background: rgba(0,180,216,0.2);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lab-transport-line::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--teal), transparent);
+            animation: transport-move 2s ease-in-out infinite;
+        }
+
+        @keyframes transport-move {
+            0% { left: -40%; }
+            100% { left: 100%; }
+        }
+
+        .lab-transport-icon {
+            font-size: 1.4rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* ── PHLEBOTOMIST CARD ── */
+        .phleb-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+            margin: 16px 0;
+            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .phleb-card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .phleb-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .phleb-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            width: 12px;
+            height: 12px;
+            background: var(--green);
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .phleb-info {
+            flex: 1;
+        }
+
+        .phleb-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--navy);
+        }
+
+        .phleb-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 3px;
+        }
+
+        .phleb-rating {
+            font-size: 0.78rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .phleb-rating .star {
+            color: #fbbf24;
+        }
+
+        .phleb-vehicle {
+            font-size: 0.75rem;
+            color: var(--gray);
+            background: rgba(0,0,0,0.04);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .phleb-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phleb-actions .btn {
+            flex: 1;
+            justify-content: center;
+            font-size: 0.85rem;
+            padding: 10px 16px;
+        }
+
+        /* ── STATUS TIMELINE ── */
+        .timeline-section {
+            margin: 20px 0;
+        }
+
+        .timeline-header {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: var(--navy);
+            margin-bottom: 20px;
+            padding-left: 4px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 15px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .timeline-line-fill {
+            position: absolute;
+            left: 15px;
+            top: 8px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--green), var(--teal));
+            border-radius: 1px;
+            transition: height 1s ease;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            opacity: 0.5;
+            transition: all 0.5s ease;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item.completed {
+            opacity: 1;
+        }
+
+        .timeline-item.current {
+            opacity: 1;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -25px;
+            top: 2px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            background: #e5e7eb;
+            color: var(--gray);
+            transition: all 0.5s ease;
+            z-index: 2;
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: var(--green);
+            color: white;
+            font-size: 0.7rem;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+        }
+
+        .timeline-item.current .timeline-dot {
+            background: var(--teal);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(0,180,216,0.2);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(0,180,216,0.2); }
+            50% { box-shadow: 0 0 0 8px rgba(0,180,216,0.1); }
+        }
+
+        .timeline-item.current .timeline-dot::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,180,216,0.3);
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding-top: 1px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--gray);
+            transition: color 0.3s;
+        }
+
+        .timeline-item.completed .timeline-title,
+        .timeline-item.current .timeline-title {
+            color: var(--navy);
+        }
+
+        .timeline-item.current .timeline-title {
+            font-weight: 700;
+        }
+
+        .timeline-subtitle {
+            font-size: 0.78rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+
+        .timeline-time {
+            font-size: 0.72rem;
+            color: var(--gray);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        /* ── BOOKING DETAILS CARD ── */
+        .details-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            margin: 16px 0;
+            overflow: hidden;
+        }
+
+        .details-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            user-select: none;
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--navy);
+            transition: background 0.2s;
+        }
+
+        .details-toggle:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .details-toggle .chevron {
+            transition: transform 0.3s;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .details-toggle.open .chevron {
+            transform: rotate(180deg);
+        }
+
+        .details-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .details-body.open {
+            max-height: 600px;
+        }
+
+        .details-grid {
+            padding: 0 20px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .details-grid .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .details-grid .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* ── BOTTOM BAR ── */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(0,180,216,0.1);
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .bottom-bar .btn {
+            flex: 1;
+            max-width: 200px;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        /* ── SEARCH FORM ── */
+        .search-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .search-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .search-title {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .search-subtitle {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 2px solid #e5e7eb;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--navy);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input::placeholder {
+            text-transform: none;
+            letter-spacing: 0;
+            font-weight: 400;
+            color: #aaa;
+        }
+
+        .search-input:focus {
+            border-color: var(--teal);
+        }
+
+        .search-form .btn {
+            padding: 14px 24px;
+        }
+
+        .search-error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 12px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .search-error.visible {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) {
+            .topbar {
+                padding: 0 12px;
+                height: 54px;
+            }
+
+            .topbar-logo {
+                font-size: 1.1rem;
+            }
+
+            .topbar-title {
+                font-size: 0.82rem;
+            }
+
+            .topbar-id {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+
+            .map-section {
+                border-radius: 18px;
+                padding: 20px 14px 18px;
+                margin: 12px 0;
+                min-height: 220px;
+            }
+
+            .eta-time {
+                font-size: 1.3rem;
+            }
+
+            .phleb-card {
+                border-radius: 16px;
+                padding: 16px;
+            }
+
+            .phleb-avatar {
+                width: 44px;
+                height: 44px;
+                font-size: 0.85rem;
+            }
+
+            .phleb-actions .btn {
+                font-size: 0.8rem;
+                padding: 9px 12px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-bar .btn {
+                font-size: 0.8rem;
+                padding: 10px 14px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .tracking-container {
+                padding: 0 24px 40px;
+            }
+
+            .bottom-bar {
+                position: static;
+                background: transparent;
+                backdrop-filter: none;
+                border: none;
+                padding: 16px 0;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <header class="topbar" id="topbar">
+        <a href="index.html" class="topbar-logo">Doorstep Dx</a>
+        <div class="topbar-title">
+            <span class="live-dot"></span>
+            Live Tracking
+        </div>
+        <span class="topbar-id" id="topbar-booking-id">—</span>
+    </header>
+
+    <!-- SEARCH SECTION (no valid booking) -->
+    <section class="search-section" id="search-section" style="display:none;">
+        <div class="search-icon">🔍</div>
+        <h1 class="search-title">Track Your Booking</h1>
+        <p class="search-subtitle">Enter your booking ID to see real-time status</p>
+        <form class="search-form" id="search-form">
+            <input type="text" class="search-input" id="search-input" placeholder="e.g. DDX4K2ABC" autocomplete="off" spellcheck="false">
+            <button type="submit" class="btn btn-primary">Track</button>
+        </form>
+        <p class="search-error" id="search-error">Booking not found. Please check your ID.</p>
+    </section>
+
+    <!-- TRACKING CONTENT -->
+    <main class="tracking-container" id="tracking-content" style="display:none;">
+
+        <!-- MAP / ILLUSTRATION AREA -->
+        <div id="visual-area"></div>
+
+        <!-- PHLEBOTOMIST CARD -->
+        <div id="phleb-card-area"></div>
+
+        <!-- STATUS TIMELINE -->
+        <section class="timeline-section">
+            <h2 class="timeline-header">Status Updates</h2>
+            <div class="timeline" id="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-line-fill" id="timeline-fill"></div>
+            </div>
+        </section>
+
+        <!-- BOOKING DETAILS -->
+        <div class="details-card" id="details-card">
+            <button class="details-toggle" id="details-toggle">
+                <span>📋 View Booking Details</span>
+                <span class="chevron">▼</span>
+            </button>
+            <div class="details-body" id="details-body">
+                <div class="details-grid" id="details-grid"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar" id="bottom-bar" style="display:none;">
+        <a href="tel:+911800123456" class="btn btn-outline">📞 Call Support</a>
+        <button class="btn btn-primary" onclick="toast.info('Help Center','Our team is available 24/7 at 1800-123-456')">❓ Need Help?</button>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+    /* ══════════════════════════════════════════════
+       LIVE TRACKING PAGE – LOGIC
+       ══════════════════════════════════════════════ */
+    (() => {
+        'use strict';
+
+        // ─── STATE ───
+        let booking = null;
+        let currentStageIdx = 0;
+        let autoTimer = null;
+        let etaSeconds = 720; // 12 minutes
+        let etaInterval = null;
+        const STAGE_IDS = TRACKING_STAGES.map(s => s.id);
+
+        // ─── INIT ───
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const bookingId = params.get('id');
+
+            if (bookingId) {
+                booking = BookingStore.getById(bookingId);
+            }
+
+            if (booking) {
+                showTracking();
+            } else {
+                showSearch(bookingId);
+            }
+        });
+
+        // ─── SEARCH ───
+        function showSearch(triedId) {
+            qs('#search-section').style.display = '';
+            qs('#tracking-content').style.display = 'none';
+            qs('#bottom-bar').style.display = 'none';
+
+            if (triedId) {
+                qs('#search-error').classList.add('visible');
+                qs('#search-input').value = triedId;
+            }
+
+            qs('#search-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const val = qs('#search-input').value.trim();
+                if (!val) return;
+                window.location.href = `tracking.html?id=${encodeURIComponent(val)}`;
+            });
+        }
+
+        // ─── SHOW TRACKING ───
+        function showTracking() {
+            qs('#search-section').style.display = 'none';
+            qs('#tracking-content').style.display = '';
+            qs('#bottom-bar').style.display = '';
+
+            // Set booking ID in topbar
+            qs('#topbar-booking-id').textContent = booking.id;
+
+            // Determine current stage
+            currentStageIdx = Math.max(0, STAGE_IDS.indexOf(booking.status));
+
+            // Build timeline
+            buildTimeline();
+
+            // Render current state
+            renderStage();
+
+            // Render booking details
+            renderDetails();
+
+            // Toggle details card
+            qs('#details-toggle').addEventListener('click', () => {
+                qs('#details-toggle').classList.toggle('open');
+                qs('#details-body').classList.toggle('open');
+            });
+
+            // Start auto-progression demo
+            startAutoProgress();
+        }
+
+        // ─── BUILD TIMELINE ───
+        function buildTimeline() {
+            const timeline = qs('#timeline');
+
+            TRACKING_STAGES.forEach((stage, idx) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                item.dataset.stage = stage.id;
+                item.id = `tl-${stage.id}`;
+
+                const historyEntry = (booking.statusHistory || []).find(h => h.status === stage.id);
+                const timeStr = historyEntry ? formatTime(historyEntry.time) : '';
+
+                item.innerHTML = `
+                    <div class="timeline-dot">${stage.icon}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${stage.title}</div>
+                        <div class="timeline-subtitle">${stage.subtitle}</div>
+                        ${timeStr ? `<div class="timeline-time">${timeStr}</div>` : '<div class="timeline-time"></div>'}
+                    </div>
+                `;
+
+                timeline.appendChild(item);
+            });
+
+            updateTimeline();
+        }
+
+        // ─── UPDATE TIMELINE ───
+        function updateTimeline() {
+            TRACKING_STAGES.forEach((stage, idx) => {
+                const item = qs(`#tl-${stage.id}`);
+                if (!item) return;
+
+                item.classList.remove('completed', 'current');
+
+                if (idx < currentStageIdx) {
+                    item.classList.add('completed');
+                    const dot = qs('.timeline-dot', item);
+                    dot.textContent = '✓';
+                    // Update time if available
+                    const historyEntry = (booking.statusHistory || []).find(h => h.status === stage.id);
+                    const timeEl = qs('.timeline-time', item);
+                    if (historyEntry && timeEl) {
+                        timeEl.textContent = formatTime(historyEntry.time);
+                    }
+                } else if (idx === currentStageIdx) {
+                    item.classList.add('current');
+                    const dot = qs('.timeline-dot', item);
+                    dot.textContent = stage.icon;
+                    // Set current time
+                    const timeEl = qs('.timeline-time', item);
+                    if (timeEl && !timeEl.textContent) {
+                        timeEl.textContent = formatTime(new Date().toISOString());
+                    }
+                } else {
+                    const dot = qs('.timeline-dot', item);
+                    dot.textContent = stage.icon;
+                }
+            });
+
+            // Update fill line
+            const fill = qs('#timeline-fill');
+            const totalItems = TRACKING_STAGES.length;
+            const fillPercent = totalItems > 1 ? (currentStageIdx / (totalItems - 1)) * 100 : 0;
+            fill.style.height = fillPercent + '%';
+        }
+
+        // ─── RENDER STAGE ───
+        function renderStage() {
+            const stage = TRACKING_STAGES[currentStageIdx];
+            const visualArea = qs('#visual-area');
+            const phlebArea = qs('#phleb-card-area');
+
+            // Show map for stages 1-3 (assigned, on-the-way, arrived)
+            if (currentStageIdx >= 1 && currentStageIdx <= 3) {
+                visualArea.innerHTML = renderMap();
+                animateMapDot();
+                startEtaCountdown();
+            } else {
+                stopEtaCountdown();
+                visualArea.innerHTML = renderIllustration();
+            }
+
+            // Show phlebotomist card for stages 1+
+            if (currentStageIdx >= 1 && booking.phlebotomist) {
+                if (!qs('.phleb-card')) {
+                    phlebArea.innerHTML = renderPhlebCard();
+                }
+            } else {
+                phlebArea.innerHTML = '';
+            }
+        }
+
+        // ─── RENDER MAP ───
+        function renderMap() {
+            // Progress: 0 = at lab, 1 = on the way midpoint, 2 = at home
+            let progress = 0;
+            if (currentStageIdx === 1) progress = 0.05;
+            if (currentStageIdx === 2) progress = 0.55;
+            if (currentStageIdx === 3) progress = 1;
+
+            const distances = ['4.2 km away', '2.3 km away', '0.1 km away'];
+            const distIdx = Math.min(currentStageIdx - 1, 2);
+
+            const stars = Array.from({length: 20}, () => {
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const delay = Math.random() * 3;
+                return `<span style="left:${x}%;top:${y}%;animation-delay:${delay}s"></span>`;
+            }).join('');
+
+            return `
+                <div class="map-section">
+                    <div class="map-stars">${stars}</div>
+                    <div class="map-svg-container">
+                        <svg viewBox="0 0 500 160" preserveAspectRatio="xMidYMid meet">
+                            <!-- Route path (dashed) -->
+                            <path id="route-path" d="M 60 120 C 140 20, 250 20, 310 80 S 420 140, 440 60" class="map-route-path"/>
+                            
+                            <!-- Route trail (filled portion) -->
+                            <path id="route-trail" d="M 60 120 C 140 20, 250 20, 310 80 S 420 140, 440 60" class="map-route-trail"
+                                stroke-dasharray="520"
+                                stroke-dashoffset="${520 - (520 * progress)}"
+                            />
+
+                            <!-- Lab point -->
+                            <text x="60" y="145" text-anchor="middle" class="map-point-label">LAB</text>
+                            <text x="60" y="108" text-anchor="middle" class="map-point-icon">🏥</text>
+
+                            <!-- Home point -->
+                            <text x="440" y="50" text-anchor="middle" class="map-point-label">HOME</text>
+                            <text x="440" y="95" text-anchor="middle" class="map-point-icon">🏠</text>
+
+                            <!-- Tracker dot -->
+                            <g class="map-tracker-dot" id="tracker-dot">
+                                <circle r="14" fill="rgba(0,180,216,0.15)">
+                                    <animate attributeName="r" values="14;20;14" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                                <circle r="6" fill="var(--teal)" stroke="white" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="map-overlays">
+                        <div class="eta-card">
+                            <div class="eta-label">Estimated Arrival</div>
+                            <div class="eta-time" id="eta-display">${formatEta()} <span>min</span></div>
+                        </div>
+                        <div class="distance-badge">
+                            <span>📍</span>
+                            <span id="distance-display">${distances[distIdx]}</span>
+                        </div>
+                    </div>
+
+                    ${currentStageIdx === 3 ? `<div class="arrived-banner">🎉 Phlebotomist has arrived at your location!</div>` : ''}
+                </div>
+            `;
+        }
+
+        function animateMapDot() {
+            const dot = qs('#tracker-dot');
+            const path = qs('#route-path');
+            if (!dot || !path) return;
+
+            let progress = 0;
+            if (currentStageIdx === 1) progress = 0.05;
+            if (currentStageIdx === 2) progress = 0.55;
+            if (currentStageIdx === 3) progress = 1;
+
+            try {
+                const totalLen = path.getTotalLength();
+                const point = path.getPointAtLength(totalLen * progress);
+                dot.setAttribute('transform', `translate(${point.x}, ${point.y})`);
+            } catch(e) {
+                // Fallback positions
+                const positions = { 0.05: [70, 118], 0.55: [300, 75], 1: [440, 60] };
+                const pos = positions[progress] || [60, 120];
+                dot.setAttribute('transform', `translate(${pos[0]}, ${pos[1]})`);
+            }
+        }
+
+        function formatEta() {
+            const mins = Math.max(0, Math.ceil(etaSeconds / 60));
+            return mins;
+        }
+
+        function startEtaCountdown() {
+            stopEtaCountdown();
+
+            // Set ETA based on stage
+            if (currentStageIdx === 1) etaSeconds = 720; // 12 min
+            if (currentStageIdx === 2) etaSeconds = 420; // 7 min
+            if (currentStageIdx === 3) etaSeconds = 0;
+
+            updateEtaDisplay();
+
+            if (currentStageIdx < 3) {
+                etaInterval = setInterval(() => {
+                    etaSeconds = Math.max(0, etaSeconds - 1);
+                    updateEtaDisplay();
+                }, 1000);
+            }
+        }
+
+        function stopEtaCountdown() {
+            if (etaInterval) {
+                clearInterval(etaInterval);
+                etaInterval = null;
+            }
+        }
+
+        function updateEtaDisplay() {
+            const el = qs('#eta-display');
+            if (el) {
+                const mins = formatEta();
+                el.innerHTML = mins === 0 ? `<span style="font-size:1rem;color:#6ee7b7;">Arrived!</span>` : `${mins} <span>min</span>`;
+            }
+        }
+
+        // ─── RENDER ILLUSTRATION ───
+        function renderIllustration() {
+            const stage = TRACKING_STAGES[currentStageIdx];
+
+            if (currentStageIdx === 0) {
+                // Confirmed
+                return `
+                    <div class="stage-illustration">
+                        <div class="confirm-ring">
+                            <svg viewBox="0 0 36 36">
+                                <polyline class="checkmark-path" points="8 18 15 26 28 10"/>
+                            </svg>
+                        </div>
+                        <div class="stage-title-large">Booking Confirmed!</div>
+                        <div class="stage-sub-large">Your diagnostic test has been scheduled</div>
+                        <div class="assigning-text">
+                            <div class="spinner"></div>
+                            Assigning phlebotomist...
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (currentStageIdx === 4) {
+                // Collected
+                return `
+                    <div class="stage-illustration">
+                        <div class="stage-icon-large">🧪</div>
+                        <div class="stage-title-large">Sample Collected Successfully</div>
+                        <div class="stage-sub-large">Being transported to the laboratory</div>
+                        <div class="lab-transport">
+                            <span class="lab-transport-icon">🧪</span>
+                            <div class="lab-transport-line"></div>
+                            <span class="lab-transport-icon">🏥</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (currentStageIdx === 5) {
+                // Report Ready
+                const confettiColors = ['#00B4D8', '#10B981', '#fbbf24', '#f97316', '#8b5cf6', '#FF6B6B'];
+                const confetti = Array.from({length: 16}, (_, i) => {
+                    const color = confettiColors[i % confettiColors.length];
+                    const left = 10 + Math.random() * 80;
+                    const delay = Math.random() * 2;
+                    const size = 6 + Math.random() * 6;
+                    return `<span class="confetti" style="background:${color};left:${left}%;top:${-10 + Math.random() * 30}%;animation-delay:${delay}s;width:${size}px;height:${size}px;"></span>`;
+                }).join('');
+
+                return `
+                    <div class="stage-illustration">
+                        ${confetti}
+                        <div class="celebration-container">
+                            <div class="stage-icon-large">📊</div>
+                            <div class="stage-title-large" style="color:#6ee7b7;">Report Ready!</div>
+                            <div class="stage-sub-large">Your test results are now available</div>
+                            <div class="report-actions">
+                                <button class="btn btn-success" onclick="toast.success('Download','Your report PDF is being prepared...')">
+                                    📥 Download Report
+                                </button>
+                                <button class="btn btn-outline" style="color:#6ee7b7;border-color:rgba(110,231,183,0.4);" onclick="toast.info('Share','WhatsApp sharing will be available soon')">
+                                    💬 Share on WhatsApp
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return '';
+        }
+
+        // ─── PHLEBOTOMIST CARD ───
+        function renderPhlebCard() {
+            const p = booking.phlebotomist;
+            if (!p) return '';
+
+            const stars = '★'.repeat(Math.floor(p.rating)) + (p.rating % 1 ? '☆' : '');
+
+            return `
+                <div class="phleb-card">
+                    <div class="phleb-card-header">
+                        <div class="phleb-avatar">${p.avatar}</div>
+                        <div class="phleb-info">
+                            <div class="phleb-name">${p.name}</div>
+                            <div class="phleb-meta">
+                                <span class="phleb-rating">
+                                    <span class="star">★</span> ${p.rating}
+                                </span>
+                                <span class="phleb-vehicle">🏍️ ${p.vehicle}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="phleb-actions">
+                        <a href="tel:${p.phone}" class="btn btn-outline">📞 Call</a>
+                        <a href="https://wa.me/${p.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn btn-primary" style="background:linear-gradient(135deg,#25D366,#128C7E);">💬 WhatsApp</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ─── BOOKING DETAILS ───
+        function renderDetails() {
+            const grid = qs('#details-grid');
+            if (!grid) return;
+
+            const items = [
+                { label: 'Patient', value: booking.name || '—' },
+                { label: 'Phone', value: booking.phone || '—' },
+                { label: 'Test', value: booking.test?.name || '—', full: true },
+                { label: 'Lab', value: booking.lab || '—' },
+                { label: 'Date', value: formatDate(booking.date) },
+                { label: 'Time Slot', value: booking.time || '—' },
+                { label: 'Amount Paid', value: formatCurrency(booking.total || 0) },
+                { label: 'Address', value: booking.address || '—', full: true },
+            ];
+
+            grid.innerHTML = items.map(item => `
+                <div class="detail-item ${item.full ? 'full-width' : ''}">
+                    <span class="detail-label">${item.label}</span>
+                    <span class="detail-value">${item.value}</span>
+                </div>
+            `).join('');
+        }
+
+        // ─── AUTO PROGRESSION ───
+        function startAutoProgress() {
+            // If already at last stage, stop
+            if (currentStageIdx >= TRACKING_STAGES.length - 1) return;
+
+            autoTimer = setInterval(() => {
+                if (currentStageIdx >= TRACKING_STAGES.length - 1) {
+                    clearInterval(autoTimer);
+                    return;
+                }
+
+                currentStageIdx++;
+                const stage = TRACKING_STAGES[currentStageIdx];
+
+                // Update booking in localStorage
+                BookingStore.update(booking.id, { status: stage.id });
+                booking = BookingStore.getById(booking.id);
+
+                // Update UI
+                updateTimeline();
+                renderStage();
+
+                // Toast notification
+                const toastMessages = {
+                    'assigned': `${booking.phlebotomist?.name || 'A phlebotomist'} is on the way`,
+                    'on-the-way': `Heading to your location`,
+                    'arrived': `Phlebotomist has arrived at your doorstep!`,
+                    'collected': `Sample collected and heading to the lab`,
+                    'report-ready': `Your report is ready for download 🎉`
+                };
+
+                toast.success(stage.title, toastMessages[stage.id] || stage.subtitle);
+
+            }, 8000);
+        }
+
+        // ─── CLEANUP ───
+        window.addEventListener('beforeunload', () => {
+            if (autoTimer) clearInterval(autoTimer);
+            stopEtaCountdown();
+        });
+
+    })();
+    </script>
+</body>
+</html>
