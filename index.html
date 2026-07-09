@@ -1,1 +1,3693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doorstep Diagnostics – Healthcare at Your Doorstep</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/common.css" />
+    <style>
+         :root {
+            --teal: #00B4D8;
+            --teal-dark: #0077A8;
+            --teal-light: #ADE8F4;
+            --navy: #03045E;
+            --white: #ffffff;
+            --off: #F4FBFF;
+            --gray: #6B7280;
+            --light-gray: #E5F4FA;
+            --accent: #FF6B6B;
+            --green: #10B981;
+            --text: #1a1a2e;
+            --card-shadow: 0 4px 32px rgba(0, 180, 216, 0.10);
+            --error: #ef4444;
+            --success: #10b981;
+            --warn: #f59e0b;
+        }
+        
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background: var(--white);
+            overflow-x: hidden;
+        }
+        /* ── NAVBAR ── */
+        
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 180, 216, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            height: 68px;
+            transition: box-shadow 0.3s;
+        }
+        
+        nav.scrolled {
+            box-shadow: 0 4px 24px rgba(0, 119, 168, 0.12);
+        }
+        
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+        
+        .nav-logo-img {
+            height: 52px;
+            width: auto;
+            display: block;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--teal);
+        }
+        
+        .nav-cta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--teal);
+            color: var(--teal);
+        }
+        
+        .btn-outline:hover {
+            background: var(--teal);
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            color: white;
+            box-shadow: 0 4px 16px rgba(0, 180, 216, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 180, 216, 0.4);
+        }
+        
+        .btn-white {
+            background: white;
+            color: var(--teal-dark);
+            font-weight: 700;
+        }
+        
+        .btn-white:hover {
+            background: var(--off);
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .hamburger span {
+            width: 24px;
+            height: 2.5px;
+            background: var(--navy);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        /* ── HERO ── */
+        
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #E0F7FF 0%, #ffffff 55%, #F0F9FF 100%);
+            display: flex;
+            align-items: center;
+            padding: 100px 5% 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -80px;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 180, 216, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(3, 4, 94, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 180, 216, 0.1);
+            border: 1px solid rgba(0, 180, 216, 0.25);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            color: var(--teal-dark);
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--teal);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1
+            }
+            50% {
+                transform: scale(1.4);
+                opacity: 0.7
+            }
+        }
+        
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 5vw, 3.8rem);
+            line-height: 1.12;
+            color: var(--navy);
+            margin-bottom: 18px;
+        }
+        
+        .hero h1 em {
+            font-style: normal;
+            color: var(--teal);
+        }
+        
+        .hero p {
+            color: var(--gray);
+            font-size: 1.08rem;
+            line-height: 1.7;
+            max-width: 440px;
+            margin-bottom: 32px;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        
+        .hero-stats {
+            display: flex;
+            gap: 28px;
+        }
+        
+        .hero-stat {
+            text-align: center;
+        }
+        
+        .hero-stat .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--navy);
+            font-weight: 900;
+        }
+        
+        .hero-stat .lbl {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+        /* ── BOOKING CARD ── */
+        
+        .booking-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 119, 168, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .booking-card-top {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            padding: 28px;
+            color: white;
+        }
+        
+        .booking-card-top h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .booking-card-top p {
+            opacity: 0.85;
+            font-size: 0.85rem;
+        }
+        /* step progress */
+        
+        .booking-steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 10px 16px;
+            margin-top: 16px;
+        }
+        
+        .bstep {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        
+        .bstep.active {
+            opacity: 1;
+        }
+        
+        .bstep.done {
+            opacity: 0.8;
+        }
+        
+        .bstep-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            transition: background 0.3s;
+        }
+        
+        .bstep.active .bstep-num {
+            background: white;
+            color: var(--teal-dark);
+        }
+        
+        .bstep.done .bstep-num {
+            background: rgba(16, 185, 129, 0.8);
+            color: white;
+        }
+        
+        .bstep-lbl {
+            font-size: 0.68rem;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+        }
+        
+        .bstep-line {
+            flex: 1;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.25);
+            max-width: 30px;
+        }
+        
+        .booking-card-body {
+            padding: 24px 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .form-group label .req {
+            color: var(--error);
+            font-size: 0.9em;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 0.92rem;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            color: var(--text);
+            background: #fafafa;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.12);
+            background: white;
+        }
+        
+        .form-group.has-error input,
+        .form-group.has-error select,
+        .form-group.has-error textarea {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+        }
+        
+        .form-group.is-valid input,
+        .form-group.is-valid select {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.10);
+        }
+        
+        .field-error {
+            font-size: 0.75rem;
+            color: var(--error);
+            margin-top: 4px;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .form-group.has-error .field-error {
+            display: block;
+        }
+        
+        .field-check {
+            position: absolute;
+            right: 14px;
+            top: 38px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            display: none;
+        }
+        
+        .form-group.is-valid .field-check {
+            display: block;
+            color: var(--success);
+        }
+        
+        .form-group.has-error .field-check {
+            display: block;
+            color: var(--error);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .timer-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 14px;
+        }
+        
+        .timer-badge span {
+            font-weight: 700;
+            color: var(--teal);
+        }
+        /* search test input */
+        
+        .test-search-wrap {
+            position: relative;
+            margin-bottom: 6px;
+        }
+        
+        .test-search-wrap input {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 10px 10px 0 0;
+            font-size: 0.88rem;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #f8fcfe;
+            color: var(--text);
+        }
+        
+        .test-search-wrap input:focus {
+            border-color: var(--teal);
+            background: white;
+        }
+        
+        .test-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        
+        .test-count-badge {
+            font-size: 0.72rem;
+            color: var(--teal-dark);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        #f-test {
+            border-radius: 0 0 12px 12px;
+            border-top: none;
+        }
+        /* parameter preview */
+        
+        .parameter-preview {
+            background: #f8fafc;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .parameter-preview.show {
+            display: block;
+        }
+        
+        .parameter-preview h5 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gray);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .param-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .param-tag {
+            background: rgba(0, 180, 216, 0.08);
+            color: var(--teal-dark);
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: 1px solid rgba(0, 180, 216, 0.2);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* price preview */
+        
+        .price-preview {
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.06), rgba(0, 119, 168, 0.04));
+            border: 1.5px solid rgba(0, 180, 216, 0.18);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            display: none;
+        }
+        
+        .price-preview.show {
+            display: block;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .price-row+.price-row {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(0, 180, 216, 0.2);
+        }
+        
+        .price-row .label {
+            color: var(--gray);
+        }
+        
+        .price-row .value {
+            font-weight: 700;
+            color: var(--teal-dark);
+        }
+        
+        .price-row.total .label {
+            font-weight: 700;
+            color: var(--navy);
+            font-size: 0.9rem;
+        }
+        
+        .price-row.total .value {
+            font-size: 1.1rem;
+            color: var(--navy);
+        }
+        
+        .price-row.saving .value {
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+        /* coupon */
+        
+        .coupon-row {
+            margin: 10px 0 4px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px dashed #c9e8ef;
+            background: #f0fbfd;
+        }
+        
+        .coupon-toggle {
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--teal);
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .coupon-toggle:hover {
+            background: #e0f5f9;
+        }
+        
+        .coupon-input-wrap {
+            padding: 4px 14px 12px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .coupon-input-wrap.open {
+            display: flex;
+        }
+        
+        .coupon-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .coupon-input-wrap input {
+            flex: 1;
+            border: 1.5px solid #b2dde8;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--navy);
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .coupon-input-wrap input:focus {
+            border-color: var(--teal);
+        }
+        
+        .coupon-apply-btn {
+            padding: 9px 16px;
+            background: var(--teal);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        
+        .coupon-apply-btn:hover {
+            background: var(--teal-dark);
+        }
+        
+        .coupon-msg {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .coupon-msg.valid {
+            color: #16a34a;
+        }
+        
+        .coupon-msg.invalid {
+            color: #dc2626;
+        }
+        
+        .coupon-hint {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+        /* submit button */
+        
+        .submit-btn {
+            width: 100%;
+            font-size: 1rem;
+            padding: 15px;
+            border-radius: 12px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            margin-top: 4px;
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .submit-btn .btn-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        
+        .submit-btn.loading .btn-text {
+            display: none;
+        }
+        
+        .submit-btn.loading .btn-spinner {
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* booking history strip */
+        
+        .recent-booking {
+            background: rgba(16, 185, 129, 0.06);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            color: #065f46;
+            margin-bottom: 14px;
+            display: none;
+            cursor: pointer;
+        }
+        
+        .recent-booking.show {
+            display: block;
+        }
+        
+        .recent-booking strong {
+            color: #047857;
+        }
+        /* ── SUCCESS MODAL ── */
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-box {
+            background: #fff;
+            border-radius: 24px;
+            padding: 0;
+            max-width: 420px;
+            width: 92%;
+            text-align: center;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes modalIn {
+            from {
+                transform: scale(0.8) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--navy), #0077a8);
+            padding: 28px 28px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .modal-icon-big {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .modal-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .modal-header p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.85rem;
+        }
+        
+        .modal-body {
+            padding: 24px 28px 28px;
+        }
+        /* Order ID strip */
+        
+        .order-id-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+        }
+        
+        .order-id-strip .oid-label {
+            font-size: 0.72rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+        
+        .order-id-strip .oid-value {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--navy);
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+        
+        .copy-btn {
+            font-size: 0.75rem;
+            background: var(--teal);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--teal-dark);
+        }
+        
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        /* booking details recap */
+        
+        .booking-recap {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            text-align: left;
+            font-size: 0.82rem;
+        }
+        
+        .recap-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+        
+        .recap-row:not(:last-child) {
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .recap-row .rkey {
+            color: var(--gray);
+        }
+        
+        .recap-row .rval {
+            font-weight: 600;
+            color: var(--navy);
+            text-align: right;
+            max-width: 60%;
+        }
+        /* what's next timeline */
+        
+        .whats-next {
+            margin-bottom: 18px;
+        }
+        
+        .whats-next h4 {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gray);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .next-step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: var(--text);
+            padding: 6px 0;
+        }
+        
+        .next-step .ns-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: rgba(0, 180, 216, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .next-step .ns-text strong {
+            display: block;
+            font-weight: 600;
+            color: var(--navy);
+        }
+        
+        .next-step .ns-text span {
+            color: var(--gray);
+            font-size: 0.78rem;
+        }
+        /* coupon display */
+        
+        .coupon-display {
+            background: linear-gradient(135deg, #0077a8, #00b4d8);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coupon-display::before {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .coupon-display::after {
+            content: '';
+            position: absolute;
+            left: -15px;
+            bottom: -15px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        .coupon-label {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        
+        .coupon-code {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 4px;
+            font-family: monospace;
+        }
+        
+        .coupon-validity {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+        
+        .coupon-discount-info {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .disc-pill {
+            background: #f0fbfd;
+            border: 1.5px solid #b2dde8;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--teal-dark);
+        }
+        
+        .modal-close {
+            background: var(--teal);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 13px 28px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: var(--navy);
+        }
+        /* confetti */
+        
+        .confetti-wrap {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10000;
+            overflow: hidden;
+        }
+        
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: confettiFall linear forwards;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        /* ── SERVICES ── */
+        
+        .services-strip {
+            background: var(--navy);
+            padding: 50px 5%;
+        }
+        
+        .services-strip-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+        
+        .service-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 28px 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        
+        .service-card:hover {
+            background: rgba(0, 180, 216, 0.18);
+            border-color: var(--teal);
+            transform: translateY(-4px);
+        }
+        
+        .service-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .service-card h4 {
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+        
+        .service-card p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        /* ── HOW IT WORKS ── */
+        
+        .how {
+            padding: 100px 5%;
+            background: var(--off);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title .tag {
+            display: inline-block;
+            background: rgba(0, 180, 216, 0.1);
+            color: var(--teal-dark);
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 14px;
+        }
+        
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            color: var(--navy);
+            margin-bottom: 14px;
+        }
+        
+        .section-title p {
+            color: var(--gray);
+            font-size: 1rem;
+            max-width: 520px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        .steps {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            position: relative;
+        }
+        
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--teal-light), var(--teal), var(--teal-light));
+            z-index: 0;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 16px;
+        }
+        
+        .step-num {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(0, 180, 216, 0.3);
+            border: 4px solid white;
+        }
+        
+        .step h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+        
+        .step p {
+            font-size: 0.85rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        /* ── PROMO ── */
+        
+        .promo {
+            background: linear-gradient(120deg, var(--navy) 0%, #0077A8 100%);
+            padding: 60px 5%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: 200px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .promo-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        
+        .promo-left {
+            flex: 1;
+            min-width: 240px;
+        }
+        
+        .promo-left .label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--teal-light);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .promo-left h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: white;
+            margin-bottom: 8px;
+        }
+        
+        .promo-left p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .promo-price {
+            text-align: center;
+        }
+        
+        .promo-price .old {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: line-through;
+        }
+        
+        .promo-price .new {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: white;
+            font-weight: 900;
+        }
+        
+        .promo-price .off-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 50px;
+            margin-top: 4px;
+        }
+        
+        .promo-right {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .promo-right small {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+        }
+        /* ── PACKAGES ── */
+        
+        .packages {
+            padding: 100px 5%;
+            background: var(--off);
+        }
+        
+        .pkg-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .pkg-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        
+        .pkg-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(0, 119, 168, 0.18);
+        }
+        
+        .pkg-card.featured {
+            border: 2.5px solid var(--teal);
+        }
+        
+        .pkg-badge {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+        
+        .pkg-body {
+            padding: 28px;
+        }
+        
+        .pkg-body h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+        
+        .pkg-body .tagline {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .pkg-tests {
+            list-style: none;
+            margin-bottom: 20px;
+            min-height: 180px;
+        }
+        
+        .pkg-tests li {
+            font-size: 0.88rem;
+            color: var(--text);
+            padding: 6px 0;
+            border-bottom: 1px solid #F3F4F6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pkg-tests li::before {
+            content: '✓';
+            color: var(--green);
+            font-weight: 700;
+        }
+        
+        .pkg-price {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .pkg-price .now {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--teal-dark);
+            font-weight: 900;
+        }
+        
+        .pkg-price .was {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-decoration: line-through;
+        }
+        
+        .pkg-price .save {
+            font-size: 0.78rem;
+            background: #FEF2F2;
+            color: var(--accent);
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        
+        .pkg-source {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--teal-dark);
+            background: rgba(0, 180, 216, 0.08);
+            border: 1px solid rgba(0, 180, 216, 0.2);
+            border-radius: 50px;
+            padding: 4px 12px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .thyro-label {
+            text-align: center;
+            margin: -30px auto 40px;
+            font-size: 0.92rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        /* ── LABS ── */
+        
+        .labs {
+            padding: 80px 5%;
+            background: white;
+        }
+        
+        .labs-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .labs-grid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .lab-logo {
+            padding: 16px 28px;
+            border: 1.5px solid #1a1a2e;
+            border-radius: 14px;
+            transition: all 0.25s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #111827;
+        }
+        
+        .lab-logo:hover {
+            border-color: var(--teal);
+            background: #1e2a38;
+            transform: scale(1.04);
+            box-shadow: 0 4px 16px rgba(0, 180, 216, 0.2);
+        }
+        
+        .lab-logo img {
+            height: 56px;
+            width: auto;
+            max-width: 180px;
+            object-fit: contain;
+            display: block;
+        }
+        /* ── STATS ── */
+        
+        .stats-bar {
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            padding: 50px 5%;
+        }
+        
+        .stats-bar-inner {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-item .big {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: 900;
+        }
+        
+        .stat-item .lbl {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+        /* ── WHY US ── */
+        
+        .why {
+            padding: 100px 5%;
+            background: white;
+        }
+        
+        .why-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .why-left h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            color: var(--navy);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .why-left p {
+            color: var(--gray);
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+        
+        .why-points {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        
+        .why-point {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        
+        .why-point .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.15), rgba(0, 119, 168, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .why-point div h5 {
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 3px;
+        }
+        
+        .why-point div p {
+            font-size: 0.88rem;
+            color: var(--gray);
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .why-right {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .why-card {
+            background: var(--off);
+            border-radius: 18px;
+            padding: 28px;
+            transition: all 0.3s;
+        }
+        
+        .why-card:hover {
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.08), rgba(0, 119, 168, 0.06));
+            transform: scale(1.02);
+        }
+        
+        .why-card .wc-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        
+        .why-card h5 {
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+        
+        .why-card p {
+            font-size: 0.82rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        /* ── TESTIMONIALS ── */
+        
+        .testimonials {
+            padding: 100px 5%;
+            background: var(--navy);
+        }
+        
+        .test-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s;
+        }
+        
+        .test-card:hover {
+            background: rgba(0, 180, 216, 0.15);
+            border-color: rgba(0, 180, 216, 0.35);
+        }
+        
+        .stars {
+            color: #FBBF24;
+            font-size: 1rem;
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+        }
+        
+        .test-card blockquote {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.75;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        .test-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .test-author div .name {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .test-author div .loc {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+        }
+        /* ── APP SECTION ── */
+        
+        .app-section {
+            padding: 100px 5%;
+            background: var(--off);
+        }
+        
+        .app-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .app-left h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            color: var(--navy);
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .app-left p {
+            color: var(--gray);
+            line-height: 1.75;
+            margin-bottom: 28px;
+        }
+        
+        .app-features {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+        
+        .app-feat {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.92rem;
+            color: var(--text);
+        }
+        
+        .app-feat .check {
+            width: 24px;
+            height: 24px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--green);
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .app-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        
+        .app-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 22px;
+            background: var(--navy);
+            border-radius: 14px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+        
+        .app-btn:hover {
+            background: var(--teal-dark);
+            transform: translateY(-2px);
+        }
+        
+        .app-btn .store-icon {
+            font-size: 1.6rem;
+        }
+        
+        .app-btn div .sub {
+            font-size: 0.68rem;
+            opacity: 0.7;
+        }
+        
+        .app-btn div .store-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        
+        .app-right {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .qr-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            max-width: 280px;
+        }
+        
+        .qr-box {
+            width: 180px;
+            height: 180px;
+            background: var(--navy);
+            border-radius: 16px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qr-box svg {
+            width: 140px;
+            height: 140px;
+        }
+        
+        .qr-card p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* ── PAYMENT STEP ── */
+        .payment-summary {
+            background: #f8fafc;
+            border: 1.5px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+        }
+        .payment-summary h5 {
+            font-size: 0.75rem; font-weight: 700; color: var(--gray);
+            text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+        }
+        .ps-row {
+            display: flex; justify-content: space-between; padding: 5px 0;
+            font-size: 0.85rem; color: var(--text);
+        }
+        .ps-row span:last-child { font-weight: 600; color: var(--navy); }
+        .ps-row.ps-total { border-top: 1.5px solid #E5E7EB; margin-top: 6px; padding-top: 8px; }
+        .ps-row.ps-total span:last-child { font-size: 1.1rem; color: var(--teal-dark); font-weight: 800; }
+
+        .security-badges {
+            display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .security-badges span {
+            font-size: 0.72rem; color: var(--gray); background: #f0f9ff;
+            padding: 4px 10px; border-radius: 50px; border: 1px solid #e0f2fe;
+        }
+
+        .payment-methods { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .pay-method {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; border: 1.5px solid #E5E7EB; border-radius: 12px;
+            cursor: pointer; transition: all 0.2s; background: #fafafa;
+        }
+        .pay-method:hover { border-color: var(--teal-light); background: #f0fbff; }
+        .pay-method.active { border-color: var(--teal); background: rgba(0,180,216,0.04); box-shadow: 0 0 0 3px rgba(0,180,216,0.08); }
+        .pm-radio {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid #d1d5db; transition: all 0.2s; flex-shrink: 0;
+            position: relative;
+        }
+        .pay-method.active .pm-radio {
+            border-color: var(--teal);
+        }
+        .pay-method.active .pm-radio::after {
+            content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--teal);
+        }
+        .pm-icon { font-size: 1.3rem; }
+        .pm-info { flex: 1; }
+        .pm-info strong { display: block; font-size: 0.88rem; color: var(--navy); }
+        .pm-info small { font-size: 0.75rem; color: var(--gray); }
+
+        .pay-panel { animation: fadeIn 0.3s ease; }
+
+        /* UPI */
+        .upi-qr-section { text-align: center; padding: 16px 0; }
+        .upi-qr-box {
+            width: 140px; height: 140px; margin: 0 auto 10px;
+            background: white; border-radius: 12px; padding: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center;
+        }
+        .upi-qr-box svg { width: 120px; height: 120px; }
+        .upi-qr-label { font-size: 0.85rem; font-weight: 600; color: var(--navy); }
+        .upi-timer { font-size: 0.78rem; color: var(--gray); margin-top: 4px; }
+        .upi-timer span { font-weight: 700; color: var(--accent); }
+        .upi-divider {
+            display: flex; align-items: center; gap: 12px; margin: 14px 0;
+            color: var(--gray); font-size: 0.8rem; font-weight: 600;
+        }
+        .upi-divider::before, .upi-divider::after {
+            content: ''; flex: 1; height: 1px; background: #E5E7EB;
+        }
+
+        /* Card Preview */
+        .card-preview { margin-bottom: 16px; perspective: 1000px; }
+        .card-front {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            border-radius: 16px; padding: 20px; color: white; position: relative;
+            min-height: 160px; overflow: hidden;
+        }
+        .card-front::before {
+            content: ''; position: absolute; top: -30px; right: -30px;
+            width: 120px; height: 120px; border-radius: 50%;
+            background: rgba(0,180,216,0.15);
+        }
+        .card-front::after {
+            content: ''; position: absolute; bottom: -20px; left: -20px;
+            width: 80px; height: 80px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+        .card-chip { font-size: 1.5rem; margin-bottom: 14px; }
+        .card-number { font-family: monospace; font-size: 1.2rem; letter-spacing: 3px; margin-bottom: 16px; }
+        .card-bottom { display: flex; justify-content: space-between; }
+        .card-label { font-size: 0.6rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+        .card-name, .card-expiry-display { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .card-type { position: absolute; top: 20px; right: 20px; font-size: 1.4rem; font-weight: 900; opacity: 0.8; }
+
+        /* Bank Grid */
+        .bank-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .bank-option {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 12px 8px; border: 1.5px solid #E5E7EB; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .bank-option:hover { border-color: var(--teal); background: #f0fbff; }
+        .bank-option.active { border-color: var(--teal); background: rgba(0,180,216,0.06); }
+        .bank-icon {
+            width: 36px; height: 36px; border-radius: 8px; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 800;
+        }
+        .bank-option span { font-size: 0.75rem; font-weight: 600; color: var(--navy); }
+
+        /* Wallet Grid */
+        .wallet-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .wallet-option {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 14px 8px; border: 1.5px solid #E5E7EB; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .wallet-option:hover { border-color: var(--teal); }
+        .wallet-option.active { border-color: var(--teal); background: rgba(0,180,216,0.06); }
+        .wallet-icon {
+            width: 40px; height: 40px; border-radius: 10px; background: #00B4D8;
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 900;
+        }
+        .wallet-option strong { font-size: 0.8rem; color: var(--navy); }
+
+        /* Cash */
+        .cash-info { text-align: center; padding: 20px 16px; }
+        .cash-icon { font-size: 3rem; margin-bottom: 10px; }
+        .cash-info h5 { font-size: 1rem; color: var(--navy); margin-bottom: 6px; }
+        .cash-info p { font-size: 0.88rem; color: var(--gray); line-height: 1.6; margin-bottom: 12px; }
+        .cash-note {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px;
+            padding: 8px 14px; font-size: 0.8rem; color: #92400e; font-weight: 500;
+        }
+
+        /* Payment Processing */
+        .payment-processing {
+            text-align: center; padding: 32px 16px;
+            background: rgba(0,180,216,0.03); border-radius: 12px;
+            margin-bottom: 14px; animation: fadeIn 0.3s;
+        }
+        .pp-spinner {
+            width: 48px; height: 48px; border: 3px solid #E5E7EB;
+            border-top-color: var(--teal); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+        }
+        .payment-processing h5 { font-size: 1rem; color: var(--navy); margin-bottom: 4px; }
+        .payment-processing p { font-size: 0.85rem; color: var(--gray); }
+        .pp-progress {
+            width: 80%; max-width: 200px; height: 4px; background: #E5E7EB;
+            border-radius: 4px; margin: 14px auto 0; overflow: hidden;
+        }
+        .pp-bar {
+            height: 100%; width: 0; background: linear-gradient(90deg, var(--teal), var(--teal-dark));
+            border-radius: 4px; transition: width 0.3s;
+        }
+
+        /* ── FAQ ── */
+        .faq {
+            padding: 100px 5%;
+            background: white;
+        }
+
+        .faq-list {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .faq-q {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--navy);
+            cursor: pointer;
+            text-align: left;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .faq-q .arrow {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+            color: var(--teal);
+        }
+
+        .faq-item.open .faq-q .arrow {
+            transform: rotate(180deg);
+        }
+
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+
+        .faq-a p {
+            padding: 0 0 20px;
+            color: var(--gray);
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--navy);
+            padding: 60px 5% 30px;
+            color: white;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-col h5 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--teal-light);
+            margin-bottom: 16px;
+        }
+
+        .footer-col p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-col ul a:hover {
+            color: var(--teal);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+            }
+            .why-grid,
+            .app-inner {
+                grid-template-columns: 1fr;
+            }
+            .footer-inner {
+                grid-template-columns: 1fr 1fr;
+            }
+            .steps {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px;
+            }
+            .steps::before {
+                display: none;
+            }
+            .stats-bar-inner {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .nav-links {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-cta .btn-outline {
+                display: none;
+            }
+            .hero {
+                padding: 100px 5% 40px;
+            }
+            .hero-stats {
+                gap: 16px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .footer-inner {
+                grid-template-columns: 1fr;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            .steps {
+                grid-template-columns: 1fr;
+            }
+            .stats-bar-inner {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ── SCROLL ANIMATIONS ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── FLOATING WHATSAPP ── */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99;
+            width: 56px;
+            height: 56px;
+            background: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+        }
+        .whatsapp-float svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ── NAVBAR ── -->
+    <nav id="navbar">
+        <a href="#" class="nav-logo">
+            <svg class="nav-logo-img" viewBox="0 0 220 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="26" cy="26" r="22" fill="url(#logoGrad)"/>
+                <path d="M18 20 L26 14 L34 20 L34 32 L26 38 L18 32Z" fill="white" opacity="0.9"/>
+                <path d="M26 22 L26 30 M22 26 L30 26" stroke="#0077A8" stroke-width="2" stroke-linecap="round"/>
+                <text x="56" y="34" font-family="Playfair Display, serif" font-weight="900" font-size="20" fill="#03045E">Doorstep</text>
+                <text x="155" y="34" font-family="DM Sans, sans-serif" font-weight="400" font-size="14" fill="#0077A8">Dx</text>
+                <defs>
+                    <linearGradient id="logoGrad" x1="0" y1="0" x2="52" y2="52">
+                        <stop offset="0%" stop-color="#00B4D8"/>
+                        <stop offset="100%" stop-color="#0077A8"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#services" class="active">Services</a></li>
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#packages">Packages</a></li>
+            <li><a href="#why">Why Us</a></li>
+            <li><a href="#testimonials">Reviews</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="nav-cta">
+            <a href="tel:+911234567890" class="btn btn-outline">📞 Call Us</a>
+            <a href="#book" class="btn btn-primary">Book Now</a>
+        </div>
+        <div class="hamburger" id="hamburger">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero" id="book">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    NABL Certified Labs · Trusted by 50,000+ Patients
+                </div>
+                <h1>Healthcare <em>at Your Doorstep</em></h1>
+                <p>Book lab tests from top certified labs – hassle-free sample collection from home, with results delivered digitally in hours.</p>
+                <div class="hero-actions">
+                    <a href="#book-form" class="btn btn-primary">📋 Book a Test Now</a>
+                    <a href="#packages" class="btn btn-outline">💎 View Packages</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="num" id="stat-tests">50K+</div>
+                        <div class="lbl">Tests Done</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">4.9★</div>
+                        <div class="lbl">Rating</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">200+</div>
+                        <div class="lbl">Cities</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="num">6hr</div>
+                        <div class="lbl">Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── BOOKING CARD ── -->
+            <div class="booking-card" id="book-form">
+                <div class="booking-card-top">
+                    <h3>🔬 Book Your Test</h3>
+                    <p>Quick, easy & reliable diagnostics at home</p>
+                    <div class="booking-steps">
+                        <div class="bstep active" data-step="1">
+                            <div class="bstep-num">1</div>
+                            <div class="bstep-lbl">Details</div>
+                        </div>
+                        <div class="bstep-line"></div>
+                        <div class="bstep" data-step="2">
+                            <div class="bstep-num">2</div>
+                            <div class="bstep-lbl">Test</div>
+                        </div>
+                        <div class="bstep-line"></div>
+                        <div class="bstep" data-step="3">
+                            <div class="bstep-num">3</div>
+                            <div class="bstep-lbl">Schedule</div>
+                        </div>
+                        <div class="bstep-line"></div>
+                        <div class="bstep" data-step="4">
+                            <div class="bstep-num">4</div>
+                            <div class="bstep-lbl">Payment</div>
+                        </div>
+                        <div class="bstep-line"></div>
+                        <div class="bstep" data-step="5">
+                            <div class="bstep-num">5</div>
+                            <div class="bstep-lbl">Confirm</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="booking-card-body">
+                    <div class="recent-booking" id="recent-booking">
+                        🕒 <strong>Rebook last:</strong> <span id="rb-text"></span>
+                    </div>
+                    <form id="booking-form" autocomplete="off">
+                        <!-- Step 1: Details -->
+                        <div class="form-step" id="step-1">
+                            <div class="form-group" id="fg-name">
+                                <label>👤 Full Name <span class="req">*</span></label>
+                                <input type="text" id="f-name" placeholder="Enter your full name" required />
+                                <span class="field-check">✓</span>
+                                <div class="field-error" id="err-name">Please enter your full name</div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" id="fg-phone">
+                                    <label>📱 Phone <span class="req">*</span></label>
+                                    <input type="tel" id="f-phone" placeholder="10-digit mobile" maxlength="10" required />
+                                    <span class="field-check">✓</span>
+                                    <div class="field-error" id="err-phone">Enter valid 10-digit phone</div>
+                                </div>
+                                <div class="form-group" id="fg-age">
+                                    <label>🎂 Age <span class="req">*</span></label>
+                                    <input type="number" id="f-age" placeholder="Age" min="1" max="120" required />
+                                    <span class="field-check">✓</span>
+                                    <div class="field-error" id="err-age">Enter valid age (1-120)</div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="fg-gender">
+                                <label>⚧ Gender <span class="req">*</span></label>
+                                <select id="f-gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                                <span class="field-check">✓</span>
+                                <div class="field-error" id="err-gender">Please select gender</div>
+                            </div>
+                            <button type="button" class="btn btn-primary submit-btn" id="next-1">
+                                <span class="btn-text">Continue to Test Selection →</span>
+                            </button>
+                        </div>
+
+                        <!-- Step 2: Test -->
+                        <div class="form-step" id="step-2" style="display:none">
+                            <div class="form-group" id="fg-test">
+                                <label>🔬 Select Test <span class="req">*</span></label>
+                                <div class="test-search-wrap">
+                                    <span class="test-search-icon">🔍</span>
+                                    <input type="text" id="test-search" placeholder="Search tests..." />
+                                </div>
+                                <div class="test-count-badge" id="test-count">Showing all tests</div>
+                                <select id="f-test" size="5" required>
+                                    <option value="cbc" data-price="399" data-params="Hemoglobin,WBC Count,RBC Count,Platelet Count,Hematocrit">Complete Blood Count (CBC) – ₹399</option>
+                                    <option value="thyroid" data-price="499" data-params="TSH,T3,T4,Free T3,Free T4">Thyroid Profile – ₹499</option>
+                                    <option value="diabetes" data-price="599" data-params="Fasting Glucose,PP Glucose,HbA1c,Insulin">Diabetes Panel – ₹599</option>
+                                    <option value="lipid" data-price="449" data-params="Total Cholesterol,HDL,LDL,Triglycerides,VLDL">Lipid Profile – ₹449</option>
+                                    <option value="liver" data-price="699" data-params="SGOT,SGPT,Bilirubin,ALP,GGT,Albumin">Liver Function Test – ₹699</option>
+                                    <option value="kidney" data-price="649" data-params="Creatinine,BUN,Uric Acid,eGFR,Electrolytes">Kidney Function Test – ₹649</option>
+                                    <option value="vitamin" data-price="899" data-params="Vitamin D,Vitamin B12,Folate,Iron,Calcium">Vitamin Panel – ₹899</option>
+                                    <option value="full-body" data-price="1999" data-params="CBC,Thyroid,Lipid,Liver,Kidney,Sugar,Vitamin D,B12,Iron,Urine">Full Body Checkup – ₹1,999</option>
+                                    <option value="allergy" data-price="1499" data-params="Total IgE,Specific IgE Panel,Eosinophil Count">Allergy Panel – ₹1,499</option>
+                                    <option value="hormone" data-price="1299" data-params="Testosterone,Estrogen,Progesterone,LH,FSH,Prolactin">Hormone Panel – ₹1,299</option>
+                                </select>
+                                <div class="field-error" id="err-test">Please select a test</div>
+                            </div>
+                            <div class="parameter-preview" id="param-preview">
+                                <h5>📊 Parameters Included</h5>
+                                <div class="param-tags" id="param-tags"></div>
+                            </div>
+                            <div class="form-group" id="fg-lab">
+                                <label>🏥 Preferred Lab</label>
+                                <select id="f-lab">
+                                    <option value="thyrocare">Thyrocare (NABL)</option>
+                                    <option value="redcliffe">Redcliffe Labs (NABL)</option>
+                                    <option value="healthians">Healthians</option>
+                                </select>
+                            </div>
+                            <div class="price-preview" id="price-preview">
+                                <div class="price-row">
+                                    <span class="label">Test Price</span>
+                                    <span class="value" id="pp-base">—</span>
+                                </div>
+                                <div class="price-row">
+                                    <span class="label">Home Collection</span>
+                                    <span class="value">FREE</span>
+                                </div>
+                                <div class="price-row" id="pp-disc-row" style="display:none">
+                                    <span class="label">Coupon Discount</span>
+                                    <span class="value" id="pp-disc" style="color:var(--success)">—</span>
+                                </div>
+                                <div class="price-row total">
+                                    <span class="label">Total</span>
+                                    <span class="value" id="pp-total">—</span>
+                                </div>
+                                <div class="price-row saving" id="pp-saving" style="display:none">
+                                    <span class="label"></span>
+                                    <span class="value" id="pp-saving-text"></span>
+                                </div>
+                            </div>
+                            <div class="coupon-row">
+                                <div class="coupon-toggle" id="coupon-toggle">
+                                    🎟️ Have a coupon code?
+                                    <span>▼</span>
+                                </div>
+                                <div class="coupon-input-wrap" id="coupon-wrap">
+                                    <div class="coupon-input-row">
+                                        <input type="text" id="coupon-input" placeholder="ENTER CODE" maxlength="12" />
+                                        <button type="button" class="coupon-apply-btn" id="coupon-apply">Apply</button>
+                                    </div>
+                                    <div class="coupon-msg" id="coupon-msg"></div>
+                                    <div class="coupon-hint">Try: FIRST20, HEALTH10, FAMILY15</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:14px;">
+                                <button type="button" class="btn btn-outline" id="back-2" style="flex:1">← Back</button>
+                                <button type="button" class="btn btn-primary submit-btn" id="next-2" style="flex:2">
+                                    <span class="btn-text">Continue to Schedule →</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Schedule -->
+                        <div class="form-step" id="step-3" style="display:none">
+                            <div class="form-row">
+                                <div class="form-group" id="fg-date">
+                                    <label>📅 Preferred Date <span class="req">*</span></label>
+                                    <input type="date" id="f-date" required />
+                                    <span class="field-check">✓</span>
+                                    <div class="field-error" id="err-date">Please select a date</div>
+                                </div>
+                                <div class="form-group" id="fg-time">
+                                    <label>⏰ Time Slot <span class="req">*</span></label>
+                                    <select id="f-time" required>
+                                        <option value="">Select Time</option>
+                                        <option>6:00 AM – 8:00 AM</option>
+                                        <option>8:00 AM – 10:00 AM</option>
+                                        <option>10:00 AM – 12:00 PM</option>
+                                        <option>4:00 PM – 6:00 PM</option>
+                                    </select>
+                                    <span class="field-check">✓</span>
+                                    <div class="field-error" id="err-time">Please select a time slot</div>
+                                </div>
+                            </div>
+                            <div class="form-group" id="fg-address">
+                                <label>📍 Collection Address <span class="req">*</span></label>
+                                <textarea id="f-address" rows="2" placeholder="House/Flat No., Street, Landmark, City, PIN" required></textarea>
+                                <div class="field-error" id="err-address">Please enter your address</div>
+                            </div>
+                            <div class="form-group">
+                                <label>📝 Special Instructions</label>
+                                <textarea id="f-notes" rows="2" placeholder="Fasting required? Any allergies? (optional)"></textarea>
+                            </div>
+                            <div style="display:flex; gap:10px; margin-top:14px;">
+                                <button type="button" class="btn btn-outline" id="back-3" style="flex:1">← Back</button>
+                                <button type="button" class="btn btn-primary submit-btn" id="next-3" style="flex:2">
+                                    <span class="btn-text">Continue to Payment →</span>
+                                </button>
+                            </div>
+                            <div class="timer-badge">
+                                ⏱️ Avg. booking time: <span>45 seconds</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Payment -->
+                        <div class="form-step" id="step-4" style="display:none">
+                            <!-- Order Summary -->
+                            <div class="payment-summary">
+                                <h5>📋 Order Summary</h5>
+                                <div class="ps-row"><span>Test</span><span id="ps-test">—</span></div>
+                                <div class="ps-row"><span>Lab</span><span id="ps-lab">—</span></div>
+                                <div class="ps-row"><span>Date & Time</span><span id="ps-datetime">—</span></div>
+                                <div class="ps-row ps-total"><span>Total</span><span id="ps-total">—</span></div>
+                            </div>
+
+                            <!-- Security Badge -->
+                            <div class="security-badges">
+                                <span>🔒 256-bit SSL</span>
+                                <span>🏦 RBI Compliant</span>
+                                <span>🛡️ PCI-DSS</span>
+                            </div>
+
+                            <!-- Payment Methods -->
+                            <div class="form-group">
+                                <label>💳 Select Payment Method <span class="req">*</span></label>
+                            </div>
+                            <div class="payment-methods">
+                                <div class="pay-method active" data-method="upi">
+                                    <div class="pm-radio"></div>
+                                    <span class="pm-icon">📱</span>
+                                    <div class="pm-info"><strong>UPI</strong><small>GPay, PhonePe, Paytm</small></div>
+                                </div>
+                                <div class="pay-method" data-method="card">
+                                    <div class="pm-radio"></div>
+                                    <span class="pm-icon">💳</span>
+                                    <div class="pm-info"><strong>Credit / Debit Card</strong><small>Visa, Mastercard, RuPay</small></div>
+                                </div>
+                                <div class="pay-method" data-method="netbanking">
+                                    <div class="pm-radio"></div>
+                                    <span class="pm-icon">🏦</span>
+                                    <div class="pm-info"><strong>Net Banking</strong><small>All major banks</small></div>
+                                </div>
+                                <div class="pay-method" data-method="wallet">
+                                    <div class="pm-radio"></div>
+                                    <span class="pm-icon">👛</span>
+                                    <div class="pm-info"><strong>Wallet</strong><small>Paytm, PhonePe, Amazon</small></div>
+                                </div>
+                                <div class="pay-method" data-method="cash">
+                                    <div class="pm-radio"></div>
+                                    <span class="pm-icon">💵</span>
+                                    <div class="pm-info"><strong>Cash on Collection</strong><small>Pay when phlebotomist arrives</small></div>
+                                </div>
+                            </div>
+
+                            <!-- UPI Payment -->
+                            <div class="pay-panel" id="pay-upi">
+                                <div class="upi-qr-section">
+                                    <div class="upi-qr-box">
+                                        <svg viewBox="0 0 120 120" fill="none">
+                                            <rect width="120" height="120" rx="8" fill="#f8fafc"/>
+                                            <rect x="8" y="8" width="32" height="32" rx="3" stroke="#03045E" stroke-width="3" fill="none"/>
+                                            <rect x="16" y="16" width="16" height="16" rx="2" fill="#00B4D8"/>
+                                            <rect x="80" y="8" width="32" height="32" rx="3" stroke="#03045E" stroke-width="3" fill="none"/>
+                                            <rect x="88" y="16" width="16" height="16" rx="2" fill="#00B4D8"/>
+                                            <rect x="8" y="80" width="32" height="32" rx="3" stroke="#03045E" stroke-width="3" fill="none"/>
+                                            <rect x="16" y="88" width="16" height="16" rx="2" fill="#00B4D8"/>
+                                            <rect x="48" y="8" width="6" height="6" fill="#03045E"/>
+                                            <rect x="48" y="20" width="6" height="6" fill="#00B4D8"/>
+                                            <rect x="56" y="48" width="6" height="6" fill="#03045E"/>
+                                            <rect x="48" y="56" width="6" height="6" fill="#00B4D8"/>
+                                            <rect x="80" y="80" width="32" height="32" rx="3" stroke="#0077A8" stroke-width="3" fill="none" stroke-dasharray="4 2"/>
+                                            <text x="88" y="102" font-size="12" font-weight="700" fill="#00B4D8">PAY</text>
+                                        </svg>
+                                    </div>
+                                    <div class="upi-qr-label">Scan QR to pay</div>
+                                    <div class="upi-timer">Expires in <span id="upi-countdown">5:00</span></div>
+                                </div>
+                                <div class="upi-divider"><span>OR</span></div>
+                                <div class="form-group" id="fg-upi">
+                                    <label>Enter UPI ID</label>
+                                    <input type="text" id="f-upi" placeholder="yourname@upi" />
+                                    <div class="field-error" id="err-upi">Enter valid UPI ID (e.g. name@upi)</div>
+                                </div>
+                            </div>
+
+                            <!-- Card Payment -->
+                            <div class="pay-panel" id="pay-card" style="display:none">
+                                <div class="card-preview">
+                                    <div class="card-front" id="card-front">
+                                        <div class="card-chip">💳</div>
+                                        <div class="card-number" id="card-display">•••• •••• •••• ••••</div>
+                                        <div class="card-bottom">
+                                            <div><div class="card-label">CARD HOLDER</div><div class="card-name" id="card-holder-display">YOUR NAME</div></div>
+                                            <div><div class="card-label">EXPIRES</div><div class="card-expiry-display" id="card-expiry-display">MM/YY</div></div>
+                                        </div>
+                                        <div class="card-type" id="card-type-icon"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="fg-cardnum">
+                                    <label>Card Number</label>
+                                    <input type="text" id="f-cardnum" placeholder="1234 5678 9012 3456" maxlength="19" />
+                                    <span class="field-check" id="card-type-badge"></span>
+                                    <div class="field-error" id="err-cardnum">Enter valid 16-digit card number</div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group" id="fg-expiry">
+                                        <label>Expiry Date</label>
+                                        <input type="text" id="f-expiry" placeholder="MM/YY" maxlength="5" />
+                                        <div class="field-error" id="err-expiry">Enter valid expiry</div>
+                                    </div>
+                                    <div class="form-group" id="fg-cvv">
+                                        <label>CVV</label>
+                                        <input type="password" id="f-cvv" placeholder="•••" maxlength="3" />
+                                        <div class="field-error" id="err-cvv">Enter 3-digit CVV</div>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="fg-cardholder">
+                                    <label>Card Holder Name</label>
+                                    <input type="text" id="f-cardholder" placeholder="Name on card" />
+                                </div>
+                            </div>
+
+                            <!-- Net Banking -->
+                            <div class="pay-panel" id="pay-netbanking" style="display:none">
+                                <div class="bank-grid">
+                                    <div class="bank-option" data-bank="SBI"><div class="bank-icon" style="background:#1a237e">SBI</div><span>SBI</span></div>
+                                    <div class="bank-option" data-bank="HDFC"><div class="bank-icon" style="background:#004c8c">HDFC</div><span>HDFC</span></div>
+                                    <div class="bank-option" data-bank="ICICI"><div class="bank-icon" style="background:#f57c00">ICICI</div><span>ICICI</span></div>
+                                    <div class="bank-option" data-bank="AXIS"><div class="bank-icon" style="background:#800020">Axis</div><span>Axis</span></div>
+                                    <div class="bank-option" data-bank="KOTAK"><div class="bank-icon" style="background:#ed1c24">Kotak</div><span>Kotak</span></div>
+                                    <div class="bank-option" data-bank="PNB"><div class="bank-icon" style="background:#1565c0">PNB</div><span>PNB</span></div>
+                                </div>
+                                <div class="form-group" style="margin-top:12px">
+                                    <label>Or select your bank</label>
+                                    <select id="f-bank">
+                                        <option value="">Choose bank...</option>
+                                        <option value="SBI">State Bank of India</option>
+                                        <option value="HDFC">HDFC Bank</option>
+                                        <option value="ICICI">ICICI Bank</option>
+                                        <option value="AXIS">Axis Bank</option>
+                                        <option value="KOTAK">Kotak Mahindra Bank</option>
+                                        <option value="PNB">Punjab National Bank</option>
+                                        <option value="BOB">Bank of Baroda</option>
+                                        <option value="YES">Yes Bank</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Wallet -->
+                            <div class="pay-panel" id="pay-wallet" style="display:none">
+                                <div class="wallet-grid">
+                                    <div class="wallet-option active" data-wallet="paytm"><span class="wallet-icon">₹</span><strong>Paytm</strong></div>
+                                    <div class="wallet-option" data-wallet="phonepe"><span class="wallet-icon" style="background:#5f259f">₱</span><strong>PhonePe</strong></div>
+                                    <div class="wallet-option" data-wallet="amazon"><span class="wallet-icon" style="background:#ff9900">A</span><strong>Amazon Pay</strong></div>
+                                </div>
+                                <div class="form-group" style="margin-top:12px" id="fg-wallet-phone">
+                                    <label>Registered Mobile Number</label>
+                                    <input type="tel" id="f-wallet-phone" placeholder="10-digit mobile" maxlength="10" />
+                                </div>
+                            </div>
+
+                            <!-- Cash -->
+                            <div class="pay-panel" id="pay-cash" style="display:none">
+                                <div class="cash-info">
+                                    <div class="cash-icon">💵</div>
+                                    <h5>Cash on Collection</h5>
+                                    <p>Pay the phlebotomist when they arrive for sample collection. Please keep exact change ready.</p>
+                                    <div class="cash-note">
+                                        <span>⚠️</span> A ₹50 convenience fee applies for cash payments
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Processing Overlay -->
+                            <div class="payment-processing" id="payment-processing" style="display:none">
+                                <div class="pp-spinner"></div>
+                                <h5>Processing Payment...</h5>
+                                <p>Please do not close this window</p>
+                                <div class="pp-progress"><div class="pp-bar" id="pp-bar"></div></div>
+                            </div>
+
+                            <div style="display:flex; gap:10px; margin-top:14px;">
+                                <button type="button" class="btn btn-outline" id="back-4" style="flex:1">← Back</button>
+                                <button type="button" class="btn btn-primary submit-btn" id="pay-btn" style="flex:2">
+                                    <span class="btn-text">🔒 Pay <span id="pay-amount">₹0</span></span>
+                                    <span class="btn-spinner"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SERVICES STRIP ── -->
+    <section class="services-strip" id="services">
+        <div class="services-strip-inner">
+            <div class="service-card reveal">
+                <div class="service-icon">🩸</div>
+                <h4>Blood Tests</h4>
+                <p>Complete blood work from certified NABL labs</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🫀</div>
+                <h4>Health Checkups</h4>
+                <p>Full body & preventive health packages</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🧬</div>
+                <h4>Specialized Tests</h4>
+                <p>Hormone, allergy & genetic testing</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🏠</div>
+                <h4>Home Collection</h4>
+                <p>FREE sample pickup from your doorstep</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">📱</div>
+                <h4>Digital Reports</h4>
+                <p>Get results on WhatsApp & email in hours</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ── -->
+    <section class="how" id="how">
+        <div class="section-title reveal">
+            <span class="tag">Simple Process</span>
+            <h2>How It Works</h2>
+            <p>Book your diagnostic test in 4 easy steps. We handle the rest.</p>
+        </div>
+        <div class="steps">
+            <div class="step reveal">
+                <div class="step-num">📋</div>
+                <h4>Choose Test</h4>
+                <p>Select from 500+ tests & health packages</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">📅</div>
+                <h4>Book Slot</h4>
+                <p>Pick your preferred date & time slot</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">🏠</div>
+                <h4>Home Collection</h4>
+                <p>Certified phlebotomist visits your home</p>
+            </div>
+            <div class="step reveal">
+                <div class="step-num">📊</div>
+                <h4>Get Results</h4>
+                <p>Digital reports on WhatsApp in 6-24 hours</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PROMO BANNER ── -->
+    <section class="promo">
+        <div class="promo-inner reveal">
+            <div class="promo-left">
+                <div class="label">🔥 Limited Time Offer</div>
+                <h3>Full Body Checkup</h3>
+                <p>73 parameters including thyroid, sugar, lipid, liver, kidney & more</p>
+            </div>
+            <div class="promo-price">
+                <div class="old">₹3,999</div>
+                <div class="new">₹1,999</div>
+                <div class="off-badge">50% OFF</div>
+            </div>
+            <div class="promo-right">
+                <a href="#book-form" class="btn btn-white">Book Now →</a>
+                <small>*Offer valid till end of month</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PACKAGES ── -->
+    <section class="packages" id="packages">
+        <div class="section-title reveal">
+            <span class="tag">Health Packages</span>
+            <h2>Popular Test Packages</h2>
+            <p>Comprehensive health packages at unbeatable prices from certified labs</p>
+        </div>
+        <div class="thyro-label reveal">
+            🏥 Powered by <strong>Thyrocare</strong> & <strong>Redcliffe Labs</strong> · NABL Accredited
+        </div>
+        <div class="pkg-grid">
+            <div class="pkg-card reveal">
+                <div class="pkg-body">
+                    <div class="pkg-source">Thyrocare</div>
+                    <h4>Basic Wellness</h4>
+                    <p class="tagline">Essential health screening</p>
+                    <ul class="pkg-tests">
+                        <li>Complete Blood Count</li>
+                        <li>Blood Sugar (Fasting)</li>
+                        <li>Lipid Profile</li>
+                        <li>Kidney Function</li>
+                        <li>Liver Function</li>
+                    </ul>
+                    <div class="pkg-price">
+                        <span class="now">₹799</span>
+                        <span class="was">₹1,500</span>
+                        <span class="save">Save 47%</span>
+                    </div>
+                    <a href="#book-form" class="btn btn-primary" style="width:100%;justify-content:center">Book This Package</a>
+                </div>
+            </div>
+            <div class="pkg-card featured reveal">
+                <div class="pkg-badge">⭐ Most Popular</div>
+                <div class="pkg-body">
+                    <div class="pkg-source">Thyrocare</div>
+                    <h4>Full Body Checkup</h4>
+                    <p class="tagline">Complete health assessment – 73 tests</p>
+                    <ul class="pkg-tests">
+                        <li>CBC + ESR</li>
+                        <li>Thyroid Profile</li>
+                        <li>Lipid Profile</li>
+                        <li>Liver & Kidney Function</li>
+                        <li>Diabetes Screening</li>
+                        <li>Vitamin D & B12</li>
+                        <li>Iron Studies</li>
+                    </ul>
+                    <div class="pkg-price">
+                        <span class="now">₹1,999</span>
+                        <span class="was">₹3,999</span>
+                        <span class="save">Save 50%</span>
+                    </div>
+                    <a href="#book-form" class="btn btn-primary" style="width:100%;justify-content:center">Book This Package</a>
+                </div>
+            </div>
+            <div class="pkg-card reveal">
+                <div class="pkg-body">
+                    <div class="pkg-source">Redcliffe Labs</div>
+                    <h4>Senior Citizen</h4>
+                    <p class="tagline">Complete elderly health panel</p>
+                    <ul class="pkg-tests">
+                        <li>All Full Body Tests</li>
+                        <li>HbA1c</li>
+                        <li>PSA / CA-125</li>
+                        <li>Bone Profile</li>
+                        <li>Cardiac Risk Markers</li>
+                        <li>Urine Analysis</li>
+                    </ul>
+                    <div class="pkg-price">
+                        <span class="now">₹2,499</span>
+                        <span class="was">₹5,499</span>
+                        <span class="save">Save 55%</span>
+                    </div>
+                    <a href="#book-form" class="btn btn-primary" style="width:100%;justify-content:center">Book This Package</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── LABS ── -->
+    <section class="labs">
+        <div class="labs-inner">
+            <div class="section-title reveal">
+                <span class="tag">Our Partner Labs</span>
+                <h2>Trusted Lab Partners</h2>
+                <p>We work with India's top NABL-accredited diagnostic labs</p>
+            </div>
+            <div class="labs-grid reveal">
+                <div class="lab-logo">
+                    <svg viewBox="0 0 180 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <text x="10" y="38" font-family="DM Sans, sans-serif" font-weight="700" font-size="22" fill="#00B4D8">Thyrocare</text>
+                    </svg>
+                </div>
+                <div class="lab-logo">
+                    <svg viewBox="0 0 180 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <text x="10" y="38" font-family="DM Sans, sans-serif" font-weight="700" font-size="22" fill="#FF6B6B">Redcliffe</text>
+                    </svg>
+                </div>
+                <div class="lab-logo">
+                    <svg viewBox="0 0 180 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <text x="10" y="38" font-family="DM Sans, sans-serif" font-weight="700" font-size="22" fill="#10B981">Healthians</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── STATS BAR ── -->
+    <section class="stats-bar">
+        <div class="stats-bar-inner">
+            <div class="stat-item reveal">
+                <div class="big">50,000+</div>
+                <div class="lbl">Tests Completed</div>
+            </div>
+            <div class="stat-item reveal">
+                <div class="big">200+</div>
+                <div class="lbl">Cities Served</div>
+            </div>
+            <div class="stat-item reveal">
+                <div class="big">4.9/5</div>
+                <div class="lbl">Customer Rating</div>
+            </div>
+            <div class="stat-item reveal">
+                <div class="big">500+</div>
+                <div class="lbl">Tests Available</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── WHY US ── -->
+    <section class="why" id="why">
+        <div class="why-grid">
+            <div class="why-left reveal">
+                <div class="section-title" style="text-align:left">
+                    <span class="tag">Why Choose Us</span>
+                    <h2>Your Health, Our Priority</h2>
+                </div>
+                <p>We combine technology with healthcare to make diagnostic testing seamless, affordable, and accessible to everyone across India.</p>
+                <div class="why-points">
+                    <div class="why-point">
+                        <div class="icon">🏆</div>
+                        <div>
+                            <h5>NABL Certified Labs</h5>
+                            <p>All partner labs are NABL accredited for accurate results</p>
+                        </div>
+                    </div>
+                    <div class="why-point">
+                        <div class="icon">⚡</div>
+                        <div>
+                            <h5>Fast Reports</h5>
+                            <p>Get digital reports within 6-24 hours of sample collection</p>
+                        </div>
+                    </div>
+                    <div class="why-point">
+                        <div class="icon">💰</div>
+                        <div>
+                            <h5>Best Prices</h5>
+                            <p>Up to 60% lower than walk-in lab rates</p>
+                        </div>
+                    </div>
+                    <div class="why-point">
+                        <div class="icon">🛡️</div>
+                        <div>
+                            <h5>100% Safe</h5>
+                            <p>Trained phlebotomists with safety-first protocols</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="why-right reveal">
+                <div class="why-card">
+                    <div class="wc-icon">🏠</div>
+                    <h5>Free Home Collection</h5>
+                    <p>No extra charges for sample pickup from your doorstep</p>
+                </div>
+                <div class="why-card">
+                    <div class="wc-icon">📱</div>
+                    <h5>WhatsApp Reports</h5>
+                    <p>Get reports instantly on WhatsApp and email</p>
+                </div>
+                <div class="why-card">
+                    <div class="wc-icon">👨‍⚕️</div>
+                    <h5>Doctor Consultation</h5>
+                    <p>Free doctor consultation on abnormal results</p>
+                </div>
+                <div class="why-card">
+                    <div class="wc-icon">🔄</div>
+                    <h5>Easy Rebooking</h5>
+                    <p>Quick rebooking for follow-up tests</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── TESTIMONIALS ── -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-title reveal">
+            <span class="tag" style="background:rgba(0,180,216,0.2);color:var(--teal-light)">Customer Reviews</span>
+            <h2 style="color:white">What Our Patients Say</h2>
+            <p style="color:rgba(255,255,255,0.6)">Trusted by 50,000+ patients across India</p>
+        </div>
+        <div class="test-grid">
+            <div class="test-card reveal">
+                <div class="stars">★★★★★</div>
+                <blockquote>"Booked a full body checkup. The phlebotomist arrived on time and was very professional. Got my reports on WhatsApp the same evening. Excellent service!"</blockquote>
+                <div class="test-author">
+                    <div class="avatar">RK</div>
+                    <div>
+                        <div class="name">Rajesh Kumar</div>
+                        <div class="loc">Mumbai, Maharashtra</div>
+                    </div>
+                </div>
+            </div>
+            <div class="test-card reveal">
+                <div class="stars">★★★★★</div>
+                <blockquote>"My elderly parents needed blood tests regularly. Doorstep Diagnostics made it so convenient with home collection. The prices are much lower than our local lab."</blockquote>
+                <div class="test-author">
+                    <div class="avatar">PS</div>
+                    <div>
+                        <div class="name">Priya Sharma</div>
+                        <div class="loc">Delhi NCR</div>
+                    </div>
+                </div>
+            </div>
+            <div class="test-card reveal">
+                <div class="stars">★★★★★</div>
+                <blockquote>"Used the FIRST20 coupon and got 20% off my thyroid panel. The booking process was seamless and the results were accurate. Highly recommend!"</blockquote>
+                <div class="test-author">
+                    <div class="avatar">AM</div>
+                    <div>
+                        <div class="name">Anita Menon</div>
+                        <div class="loc">Bangalore, Karnataka</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── APP SECTION ── -->
+    <section class="app-section" id="app">
+        <div class="app-inner">
+            <div class="app-left reveal">
+                <div class="section-title" style="text-align:left">
+                    <span class="tag">Mobile App</span>
+                    <h2>Download Our App</h2>
+                </div>
+                <p>Manage your health on the go. Book tests, track results, set reminders, and consult doctors – all from our app.</p>
+                <div class="app-features">
+                    <div class="app-feat">
+                        <span class="check">✓</span>
+                        Easy test booking & tracking
+                    </div>
+                    <div class="app-feat">
+                        <span class="check">✓</span>
+                        Digital health records vault
+                    </div>
+                    <div class="app-feat">
+                        <span class="check">✓</span>
+                        Smart health reminders
+                    </div>
+                    <div class="app-feat">
+                        <span class="check">✓</span>
+                        In-app doctor consultation
+                    </div>
+                </div>
+                <div class="app-buttons">
+                    <a href="#" class="app-btn">
+                        <span class="store-icon">🍎</span>
+                        <div>
+                            <div class="sub">Download on the</div>
+                            <div class="store-name">App Store</div>
+                        </div>
+                    </a>
+                    <a href="#" class="app-btn">
+                        <span class="store-icon">▶️</span>
+                        <div>
+                            <div class="sub">Get it on</div>
+                            <div class="store-name">Google Play</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="app-right reveal">
+                <div class="qr-card">
+                    <div class="qr-box">
+                        <svg viewBox="0 0 140 140" fill="none">
+                            <rect width="140" height="140" rx="8" fill="white"/>
+                            <rect x="10" y="10" width="40" height="40" rx="4" stroke="#03045E" stroke-width="4" fill="none"/>
+                            <rect x="20" y="20" width="20" height="20" rx="2" fill="#00B4D8"/>
+                            <rect x="90" y="10" width="40" height="40" rx="4" stroke="#03045E" stroke-width="4" fill="none"/>
+                            <rect x="100" y="20" width="20" height="20" rx="2" fill="#00B4D8"/>
+                            <rect x="10" y="90" width="40" height="40" rx="4" stroke="#03045E" stroke-width="4" fill="none"/>
+                            <rect x="20" y="100" width="20" height="20" rx="2" fill="#00B4D8"/>
+                            <rect x="60" y="10" width="8" height="8" fill="#03045E"/>
+                            <rect x="72" y="10" width="8" height="8" fill="#03045E"/>
+                            <rect x="60" y="26" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="60" y="42" width="8" height="8" fill="#03045E"/>
+                            <rect x="60" y="60" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="72" y="60" width="8" height="8" fill="#03045E"/>
+                            <rect x="84" y="60" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="96" y="60" width="8" height="8" fill="#03045E"/>
+                            <rect x="108" y="60" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="120" y="60" width="8" height="8" fill="#03045E"/>
+                            <rect x="10" y="60" width="8" height="8" fill="#03045E"/>
+                            <rect x="26" y="60" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="42" y="60" width="8" height="8" fill="#03045E"/>
+                            <rect x="60" y="76" width="8" height="8" fill="#03045E"/>
+                            <rect x="60" y="92" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="60" y="108" width="8" height="8" fill="#03045E"/>
+                            <rect x="60" y="122" width="8" height="8" fill="#00B4D8"/>
+                            <rect x="90" y="90" width="40" height="40" rx="4" stroke="#0077A8" stroke-width="4" fill="none" stroke-dasharray="6 3"/>
+                            <text x="98" y="116" font-size="14" font-weight="700" fill="#00B4D8">Dx</text>
+                        </svg>
+                    </div>
+                    <p>Scan to download the app</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FAQ ── -->
+    <section class="faq" id="faq">
+        <div class="section-title reveal">
+            <span class="tag">FAQ</span>
+            <h2>Frequently Asked Questions</h2>
+            <p>Got questions? We've got answers.</p>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item reveal">
+                <button class="faq-q">How does home sample collection work? <span class="arrow">▼</span></button>
+                <div class="faq-a"><p>Once you book a test, our certified phlebotomist will visit your home at the scheduled time. They follow strict safety protocols, collect the sample, and transport it to the lab in temperature-controlled containers.</p></div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Which labs do you partner with? <span class="arrow">▼</span></button>
+                <div class="faq-a"><p>We work with India's top NABL-accredited labs including Thyrocare, Redcliffe Labs, and Healthians. All labs follow stringent quality standards.</p></div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">How quickly will I get my reports? <span class="arrow">▼</span></button>
+                <div class="faq-a"><p>Most reports are delivered within 6-24 hours of sample collection. You'll receive them via WhatsApp and email. Some specialized tests may take 2-3 days.</p></div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">Is fasting required before blood tests? <span class="arrow">▼</span></button>
+                <div class="faq-a"><p>Fasting of 10-12 hours is required for lipid profile, blood sugar (fasting), and full body checkups. We recommend booking an early morning slot for fasting tests.</p></div>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-q">What payment methods do you accept? <span class="arrow">▼</span></button>
+                <div class="faq-a"><p>We accept UPI, credit/debit cards, net banking, wallets, and cash on collection. Payment can be made at the time of booking or after sample collection.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-col">
+                <svg viewBox="0 0 180 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:40px;margin-bottom:16px">
+                    <circle cx="22" cy="22" r="18" fill="url(#fLogoG)"/>
+                    <path d="M15 17 L22 12 L29 17 L29 27 L22 32 L15 27Z" fill="white" opacity="0.9"/>
+                    <path d="M22 19 L22 25 M19 22 L25 22" stroke="#0077A8" stroke-width="1.5" stroke-linecap="round"/>
+                    <text x="46" y="28" font-family="Playfair Display, serif" font-weight="900" font-size="16" fill="white">Doorstep</text>
+                    <text x="138" y="28" font-family="DM Sans, sans-serif" font-weight="400" font-size="12" fill="#00B4D8">Dx</text>
+                    <defs>
+                        <linearGradient id="fLogoG" x1="0" y1="0" x2="44" y2="44">
+                            <stop offset="0%" stop-color="#00B4D8"/>
+                            <stop offset="100%" stop-color="#0077A8"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <p>Making healthcare accessible, affordable and hassle-free through technology-driven diagnostics at your doorstep.</p>
+            </div>
+            <div class="footer-col">
+                <h5>Quick Links</h5>
+                <ul>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#packages">Packages</a></li>
+                    <li><a href="#how">How It Works</a></li>
+                    <li><a href="#testimonials">Reviews</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Tests</h5>
+                <ul>
+                    <li><a href="#">Blood Tests</a></li>
+                    <li><a href="#">Thyroid Panel</a></li>
+                    <li><a href="#">Diabetes Check</a></li>
+                    <li><a href="#">Full Body</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Contact</h5>
+                <ul>
+                    <li><a href="tel:+911234567890">📞 +91 12345 67890</a></li>
+                    <li><a href="mailto:care@doorstepdx.com">📧 care@doorstepdx.com</a></li>
+                    <li><a href="#">💬 WhatsApp Support</a></li>
+                    <li><a href="#">📍 All India Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2025 Doorstep Diagnostics. All rights reserved.</span>
+            <span>NABL Certified · ISO 15189 · HIPAA Compliant</span>
+        </div>
+    </footer>
+
+    <!-- ── WHATSAPP FLOAT ── -->
+    <a href="https://wa.me/911234567890" target="_blank" class="whatsapp-float" title="Chat with us on WhatsApp">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+
+    <!-- ── SUCCESS MODAL ── -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-icon-big">🎉</span>
+                <h3>Booking Confirmed!</h3>
+                <p>Your diagnostic test has been scheduled</p>
+            </div>
+            <div class="modal-body">
+                <div class="order-id-strip">
+                    <div>
+                        <div class="oid-label">Booking ID</div>
+                        <div class="oid-value" id="order-id">—</div>
+                    </div>
+                    <button class="copy-btn" id="copy-btn">Copy</button>
+                </div>
+                <div class="booking-recap" id="booking-recap"></div>
+                <div class="whats-next">
+                    <h4>What's Next?</h4>
+                    <div class="next-step">
+                        <div class="ns-icon">📱</div>
+                        <div class="ns-text">
+                            <strong>Confirmation SMS & WhatsApp</strong>
+                            <span>You'll receive details within 5 minutes</span>
+                        </div>
+                    </div>
+                    <div class="next-step">
+                        <div class="ns-icon">🏠</div>
+                        <div class="ns-text">
+                            <strong>Home Visit</strong>
+                            <span>Phlebotomist arrives at your scheduled slot</span>
+                        </div>
+                    </div>
+                    <div class="next-step">
+                        <div class="ns-icon">📊</div>
+                        <div class="ns-text">
+                            <strong>Digital Reports</strong>
+                            <span>Results on WhatsApp & email in 6-24 hours</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="modal-coupon-area"></div>
+                <button class="modal-close" id="modal-close">Done ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CONFETTI ── -->
+    <div class="confetti-wrap" id="confetti-wrap"></div>
+
+    <script>
+        // ─── CONFIG ───
+        const COUPONS = {
+            'FIRST20': { disc: 20, type: 'percent', label: '20% OFF', min: 0 },
+            'HEALTH10': { disc: 10, type: 'percent', label: '10% OFF', min: 300 },
+            'FAMILY15': { disc: 15, type: 'percent', label: '15% OFF', min: 500 },
+            'FLAT100': { disc: 100, type: 'flat', label: '₹100 OFF', min: 400 },
+            'SAVE200': { disc: 200, type: 'flat', label: '₹200 OFF', min: 999 }
+        };
+
+        let currentStep = 1;
+        let appliedCoupon = null;
+
+        // ─── ELEMENTS ───
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+        const form = $('#booking-form');
+        const stepsEl = $$('.bstep');
+        const stepLines = $$('.bstep-line');
+
+        // ─── NAV SCROLL ───
+        window.addEventListener('scroll', () => {
+            const nav = $('#navbar');
+            if (window.scrollY > 40) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        // ─── SCROLL REVEAL ───
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    revealObserver.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        $$('.reveal').forEach(el => revealObserver.observe(el));
+
+        // ─── FAQ ACCORDION ───
+        $$('.faq-q').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                const wasOpen = item.classList.contains('open');
+                $$('.faq-item').forEach(i => {
+                    i.classList.remove('open');
+                    i.querySelector('.faq-a').style.maxHeight = null;
+                });
+                if (!wasOpen) {
+                    item.classList.add('open');
+                    const answer = item.querySelector('.faq-a');
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                }
+            });
+        });
+
+        // ─── STEP NAVIGATION ───
+        function goToStep(step) {
+            $$('.form-step').forEach(s => s.style.display = 'none');
+            $(`#step-${step}`).style.display = 'block';
+            currentStep = step;
+
+            stepsEl.forEach(s => {
+                const sn = parseInt(s.dataset.step);
+                s.classList.remove('active', 'done');
+                if (sn === step) s.classList.add('active');
+                else if (sn < step) s.classList.add('done');
+            });
+        }
+
+        // ─── VALIDATION ───
+        function validateField(id, condition) {
+            const fg = $(`#fg-${id}`);
+            if (condition) {
+                fg.classList.remove('has-error');
+                fg.classList.add('is-valid');
+                return true;
+            } else {
+                fg.classList.remove('is-valid');
+                fg.classList.add('has-error');
+                return false;
+            }
+        }
+
+        function validateStep1() {
+            const name = $('#f-name').value.trim();
+            const phone = $('#f-phone').value.trim();
+            const age = parseInt($('#f-age').value);
+            const gender = $('#f-gender').value;
+
+            let valid = true;
+            if (!validateField('name', name.length >= 2)) valid = false;
+            if (!validateField('phone', /^[6-9]\d{9}$/.test(phone))) valid = false;
+            if (!validateField('age', age >= 1 && age <= 120)) valid = false;
+            if (!validateField('gender', gender !== '')) valid = false;
+            return valid;
+        }
+
+        function validateStep2() {
+            const test = $('#f-test').value;
+            let valid = true;
+            if (!validateField('test', test !== '')) valid = false;
+            return valid;
+        }
+
+        function validateStep3() {
+            const date = $('#f-date').value;
+            const time = $('#f-time').value;
+            const address = $('#f-address').value.trim();
+
+            let valid = true;
+            if (!validateField('date', date !== '')) valid = false;
+            if (!validateField('time', time !== '')) valid = false;
+            if (!validateField('address', address.length >= 10)) valid = false;
+            return valid;
+        }
+
+        // ─── INLINE VALIDATION ───
+        ['f-name', 'f-phone', 'f-age', 'f-gender'].forEach(id => {
+            const el = $(`#${id}`);
+            el.addEventListener('input', () => {
+                const fg = el.closest('.form-group');
+                if (fg.classList.contains('has-error') || fg.classList.contains('is-valid')) {
+                    if (id === 'f-name') validateField('name', el.value.trim().length >= 2);
+                    if (id === 'f-phone') validateField('phone', /^[6-9]\d{9}$/.test(el.value.trim()));
+                    if (id === 'f-age') {
+                        const a = parseInt(el.value);
+                        validateField('age', a >= 1 && a <= 120);
+                    }
+                    if (id === 'f-gender') validateField('gender', el.value !== '');
+                }
+            });
+            el.addEventListener('change', () => el.dispatchEvent(new Event('input')));
+        });
+
+        // ─── STEP BUTTONS ───
+        $('#next-1').addEventListener('click', () => {
+            if (validateStep1()) goToStep(2);
+        });
+        $('#next-2').addEventListener('click', () => {
+            if (validateStep2()) goToStep(3);
+        });
+        $('#back-2').addEventListener('click', () => goToStep(1));
+        $('#back-3').addEventListener('click', () => goToStep(2));
+
+        // ─── SET MIN DATE ───
+        const today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const yyyy = today.getFullYear();
+        $('#f-date').min = `${yyyy}-${mm}-${dd}`;
+
+        // ─── TEST SEARCH ───
+        $('#test-search').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const opts = $$('#f-test option');
+            let count = 0;
+            opts.forEach(o => {
+                const match = o.textContent.toLowerCase().includes(q);
+                o.style.display = match ? '' : 'none';
+                if (match) count++;
+            });
+            $('#test-count').textContent = q ? `${count} test${count !== 1 ? 's' : ''} found` : 'Showing all tests';
+        });
+
+        // ─── TEST SELECT → PRICE PREVIEW ───
+        $('#f-test').addEventListener('change', () => {
+            const opt = $('#f-test').selectedOptions[0];
+            if (!opt || !opt.value) {
+                $('#price-preview').classList.remove('show');
+                $('#param-preview').classList.remove('show');
+                return;
+            }
+
+            // params
+            const params = opt.dataset.params ? opt.dataset.params.split(',') : [];
+            const paramTags = $('#param-tags');
+            paramTags.innerHTML = '';
+            params.forEach(p => {
+                const tag = document.createElement('span');
+                tag.className = 'param-tag';
+                tag.textContent = p.trim();
+                paramTags.appendChild(tag);
+            });
+            $('#param-preview').classList.add('show');
+
+            // price
+            updatePricePreview();
+        });
+
+        function getBasePrice() {
+            const opt = $('#f-test').selectedOptions[0];
+            return opt && opt.dataset.price ? parseInt(opt.dataset.price) : 0;
+        }
+
+        function updatePricePreview() {
+            const base = getBasePrice();
+            if (!base) {
+                $('#price-preview').classList.remove('show');
+                return;
+            }
+            $('#price-preview').classList.add('show');
+            $('#pp-base').textContent = `₹${base.toLocaleString('en-IN')}`;
+
+            let discount = 0;
+            if (appliedCoupon) {
+                const c = COUPONS[appliedCoupon];
+                discount = c.type === 'percent' ? Math.round(base * c.disc / 100) : c.disc;
+                $('#pp-disc').textContent = `-₹${discount.toLocaleString('en-IN')}`;
+                $('#pp-disc-row').style.display = 'flex';
+            } else {
+                $('#pp-disc-row').style.display = 'none';
+            }
+
+            const total = Math.max(base - discount, 0);
+            $('#pp-total').textContent = `₹${total.toLocaleString('en-IN')}`;
+
+            if (discount > 0) {
+                $('#pp-saving').style.display = 'flex';
+                $('#pp-saving-text').textContent = `You save ₹${discount.toLocaleString('en-IN')}!`;
+            } else {
+                $('#pp-saving').style.display = 'none';
+            }
+        }
+
+        // ─── COUPON ───
+        $('#coupon-toggle').addEventListener('click', () => {
+            $('#coupon-wrap').classList.toggle('open');
+        });
+
+        $('#coupon-apply').addEventListener('click', () => {
+            const code = $('#coupon-input').value.trim().toUpperCase();
+            const msg = $('#coupon-msg');
+            const base = getBasePrice();
+
+            if (!code) {
+                msg.className = 'coupon-msg invalid';
+                msg.textContent = 'Please enter a coupon code';
+                return;
+            }
+
+            if (COUPONS[code]) {
+                const c = COUPONS[code];
+                if (base < c.min) {
+                    msg.className = 'coupon-msg invalid';
+                    msg.textContent = `Min order ₹${c.min} required for this coupon`;
+                    return;
+                }
+                appliedCoupon = code;
+                msg.className = 'coupon-msg valid';
+                msg.textContent = `✅ ${c.label} applied successfully!`;
+                updatePricePreview();
+            } else {
+                appliedCoupon = null;
+                msg.className = 'coupon-msg invalid';
+                msg.textContent = '❌ Invalid coupon code';
+                updatePricePreview();
+            }
+        });
+
+        // ─── FORM SUBMIT ───
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!validateStep3()) return;
+
+            const btn = $('#submit-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+
+                // generate order ID
+                const orderId = 'DDX' + Date.now().toString(36).toUpperCase().slice(-6) + Math.random().toString(36).toUpperCase().slice(2, 5);
+                $('#order-id').textContent = orderId;
+
+                // booking recap
+                const testOpt = $('#f-test').selectedOptions[0];
+                const base = getBasePrice();
+                let discount = 0;
+                if (appliedCoupon) {
+                    const c = COUPONS[appliedCoupon];
+                    discount = c.type === 'percent' ? Math.round(base * c.disc / 100) : c.disc;
+                }
+                const total = Math.max(base - discount, 0);
+
+                const recap = $('#booking-recap');
+                recap.innerHTML = `
+                    <div class="recap-row"><span class="rkey">Patient</span><span class="rval">${$('#f-name').value}</span></div>
+                    <div class="recap-row"><span class="rkey">Phone</span><span class="rval">${$('#f-phone').value}</span></div>
+                    <div class="recap-row"><span class="rkey">Test</span><span class="rval">${testOpt.textContent.split('–')[0].trim()}</span></div>
+                    <div class="recap-row"><span class="rkey">Lab</span><span class="rval">${$('#f-lab').selectedOptions[0].textContent}</span></div>
+                    <div class="recap-row"><span class="rkey">Date</span><span class="rval">${$('#f-date').value}</span></div>
+                    <div class="recap-row"><span class="rkey">Time</span><span class="rval">${$('#f-time').value}</span></div>
+                    <div class="recap-row"><span class="rkey">Amount</span><span class="rval" style="color:var(--teal-dark);font-size:1rem">₹${total.toLocaleString('en-IN')}</span></div>
+                `;
+
+                // coupon area in modal
+                const couponArea = $('#modal-coupon-area');
+                couponArea.innerHTML = '';
+                if (!appliedCoupon) {
+                    const nextCoupon = 'HEALTH10';
+                    const c = COUPONS[nextCoupon];
+                    couponArea.innerHTML = `
+                        <div class="coupon-display">
+                            <div class="coupon-label">🎁 Use this coupon on your next booking</div>
+                            <div class="coupon-code">${nextCoupon}</div>
+                            <div class="coupon-validity">Valid for 30 days · ${c.label}</div>
+                        </div>
+                    `;
+                } else {
+                    couponArea.innerHTML = `
+                        <div class="coupon-discount-info">
+                            <span class="disc-pill">🎟️ ${appliedCoupon}</span>
+                            <span class="disc-pill">💰 Saved ₹${discount.toLocaleString('en-IN')}</span>
+                        </div>
+                    `;
+                }
+
+                // save to localStorage
+                const bookingData = {
+                    name: $('#f-name').value,
+                    phone: $('#f-phone').value,
+                    test: testOpt.textContent.split('–')[0].trim(),
+                    orderId: orderId,
+                    date: new Date().toISOString()
+                };
+                localStorage.setItem('dd_last_booking', JSON.stringify(bookingData));
+
+                // show modal + confetti
+                $('#modal-overlay').classList.add('active');
+                launchConfetti();
+
+                // reset form
+                form.reset();
+                appliedCoupon = null;
+                goToStep(1);
+                $('#price-preview').classList.remove('show');
+                $('#param-preview').classList.remove('show');
+                $('#coupon-msg').textContent = '';
+                $('#coupon-wrap').classList.remove('open');
+                $$('.form-group').forEach(fg => {
+                    fg.classList.remove('has-error', 'is-valid');
+                });
+
+            }, 1500);
+        });
+
+        // ─── COPY ORDER ID ───
+        $('#copy-btn').addEventListener('click', () => {
+            const oid = $('#order-id').textContent;
+            navigator.clipboard.writeText(oid).then(() => {
+                const btn = $('#copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        // ─── CLOSE MODAL ───
+        $('#modal-close').addEventListener('click', () => {
+            $('#modal-overlay').classList.remove('active');
+        });
+        $('#modal-overlay').addEventListener('click', (e) => {
+            if (e.target === $('#modal-overlay')) {
+                $('#modal-overlay').classList.remove('active');
+            }
+        });
+
+        // ─── CONFETTI ───
+        function launchConfetti() {
+            const wrap = $('#confetti-wrap');
+            wrap.innerHTML = '';
+            const colors = ['#00B4D8', '#0077A8', '#FF6B6B', '#FBBF24', '#10B981', '#ADE8F4', '#03045E'];
+            for (let i = 0; i < 80; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+                piece.style.animationDelay = (Math.random() * 0.8) + 's';
+                piece.style.width = (Math.random() * 8 + 6) + 'px';
+                piece.style.height = (Math.random() * 8 + 6) + 'px';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                wrap.appendChild(piece);
+            }
+            setTimeout(() => wrap.innerHTML = '', 4000);
+        }
+
+        // ─── RECENT BOOKING ───
+        const lastBooking = localStorage.getItem('dd_last_booking');
+        if (lastBooking) {
+            try {
+                const lb = JSON.parse(lastBooking);
+                const rbEl = $('#recent-booking');
+                $('#rb-text').textContent = `${lb.test} for ${lb.name}`;
+                rbEl.classList.add('show');
+                rbEl.addEventListener('click', () => {
+                    $('#f-name').value = lb.name;
+                    $('#f-phone').value = lb.phone;
+                    rbEl.style.display = 'none';
+                });
+            } catch (e) { }
+        }
+
+        // ─── HAMBURGER ───
+        const hamburger = $('#hamburger');
+        hamburger.addEventListener('click', () => {
+            const links = $('.nav-links');
+            if (links.style.display === 'flex') {
+                links.style.display = 'none';
+            } else {
+                links.style.display = 'flex';
+                links.style.flexDirection = 'column';
+                links.style.position = 'absolute';
+                links.style.top = '68px';
+                links.style.left = '0';
+                links.style.right = '0';
+                links.style.background = 'white';
+                links.style.padding = '20px';
+                links.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
+                links.style.borderRadius = '0 0 16px 16px';
+            }
+        });
+    </script>
+</body>
+</html>
 
