@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Doorstep Diagnostics Admin Dashboard – Manage bookings, tests, coupons, patients, and settings.">
+    <title>Admin Dashboard – Doorstep Diagnostics</title>
+    <link rel="stylesheet" href="css/common.css">
+    <style>
+    /* ═══════════════════════════════════════
+       ADMIN DASHBOARD – PAGE STYLES
+       ═══════════════════════════════════════ */
+
+    /* ── LOGIN SCREEN ── */
+    .login-screen {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, #03045E 0%, #0a1128 50%, #03045E 100%);
+        transition: opacity 0.5s, visibility 0.5s;
+    }
+    .login-screen.hidden-login {
+        opacity: 0; visibility: hidden; pointer-events: none;
+    }
+    .login-bg-shapes {
+        position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .login-bg-shapes span {
+        position: absolute; border-radius: 50%;
+        background: radial-gradient(circle, rgba(0,180,216,0.15), transparent 70%);
+        animation: floatShape 12s ease-in-out infinite;
+    }
+    .login-bg-shapes span:nth-child(1) { width: 400px; height: 400px; top: -100px; left: -100px; animation-delay: 0s; }
+    .login-bg-shapes span:nth-child(2) { width: 300px; height: 300px; bottom: -80px; right: -80px; animation-delay: -3s; }
+    .login-bg-shapes span:nth-child(3) { width: 200px; height: 200px; top: 40%; left: 60%; animation-delay: -6s; }
+    @keyframes floatShape {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(30px, -20px) scale(1.1); }
+    }
+
+    .login-card {
+        position: relative; z-index: 1;
+        width: 100%; max-width: 420px; padding: 48px 40px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 24px;
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        box-shadow: 0 32px 64px rgba(0,0,0,0.4);
+        transition: transform 0.4s;
+    }
+    .login-card.shake {
+        animation: shakeCard 0.5s ease-in-out;
+    }
+    @keyframes shakeCard {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-12px); }
+        40% { transform: translateX(10px); }
+        60% { transform: translateX(-8px); }
+        80% { transform: translateX(6px); }
+    }
+    .login-logo {
+        text-align: center; margin-bottom: 32px;
+    }
+    .login-logo .logo-icon {
+        width: 60px; height: 60px; border-radius: 16px;
+        background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 1.8rem; margin-bottom: 14px;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.3);
+    }
+    .login-logo h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem; color: #fff; margin-bottom: 4px;
+    }
+    .login-logo p {
+        color: rgba(255,255,255,0.5); font-size: 0.85rem;
+    }
+    .login-field {
+        margin-bottom: 18px;
+    }
+    .login-field label {
+        display: block; color: rgba(255,255,255,0.6); font-size: 0.8rem;
+        font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .login-field input[type="text"],
+    .login-field input[type="password"] {
+        width: 100%; padding: 14px 16px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px; color: #fff; font-size: 0.95rem;
+        font-family: 'DM Sans', sans-serif;
+        transition: border-color 0.3s, background 0.3s;
+        outline: none;
+    }
+    .login-field input:focus {
+        border-color: var(--teal);
+        background: rgba(0,180,216,0.08);
+    }
+    .login-remember {
+        display: flex; align-items: center; gap: 8px;
+        margin-bottom: 24px; cursor: pointer;
+    }
+    .login-remember input { accent-color: var(--teal); cursor: pointer; }
+    .login-remember span { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+
+    .login-btn {
+        width: 100%; padding: 14px;
+        background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+        border: none; border-radius: 12px;
+        color: #fff; font-size: 1rem; font-weight: 700;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        transition: all 0.3s;
+        font-family: 'DM Sans', sans-serif;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.3);
+    }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,180,216,0.4); }
+    .login-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .login-btn .spinner {
+        width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: #fff; border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: none;
+    }
+    .login-btn.loading .spinner { display: block; }
+    .login-btn.loading .btn-text { display: none; }
+    .login-error {
+        background: rgba(239,68,68,0.15);
+        border: 1px solid rgba(239,68,68,0.3);
+        border-radius: 10px; padding: 10px 14px;
+        color: #fca5a5; font-size: 0.85rem;
+        margin-bottom: 16px; display: none;
+        text-align: center;
+    }
+    .login-error.show { display: block; animation: fadeIn 0.3s; }
+
+    /* ── DASHBOARD LAYOUT ── */
+    .admin-app { display: none; min-height: 100vh; background: var(--off); }
+    .admin-app.active { display: flex; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+        width: var(--sidebar-width); height: 100vh; position: fixed; top: 0; left: 0;
+        background: linear-gradient(180deg, #03045E 0%, #0a1128 100%);
+        display: flex; flex-direction: column; z-index: 1000;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+    }
+    .sidebar-logo {
+        padding: 24px 20px; display: flex; align-items: center; gap: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo .slogo {
+        width: 40px; height: 40px; border-radius: 12px;
+        background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
+    }
+    .sidebar-logo .slogo-text h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.05rem; color: #fff; font-weight: 700; line-height: 1.2;
+    }
+    .sidebar-logo .slogo-text span {
+        font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+    .sidebar-nav {
+        flex: 1; padding: 16px 12px;
+        display: flex; flex-direction: column; gap: 2px;
+    }
+    .sidebar-nav .nav-label {
+        font-size: 0.65rem; color: rgba(255,255,255,0.3);
+        text-transform: uppercase; letter-spacing: 0.15em;
+        padding: 12px 12px 6px; font-weight: 700;
+    }
+    .nav-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px; border-radius: 12px;
+        color: rgba(255,255,255,0.6); font-size: 0.88rem; font-weight: 500;
+        cursor: pointer; transition: all 0.25s; position: relative;
+        text-decoration: none; border: none; background: none; width: 100%;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .nav-item:hover {
+        background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9);
+    }
+    .nav-item.active {
+        background: linear-gradient(135deg, rgba(0,180,216,0.2), rgba(0,180,216,0.08));
+        color: #fff;
+    }
+    .nav-item.active::before {
+        content: '';  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+        width: 3px; height: 24px; background: var(--teal); border-radius: 0 3px 3px 0;
+    }
+    .nav-item .nav-icon { font-size: 1.15rem; width: 24px; text-align: center; }
+    .nav-item .nav-badge {
+        margin-left: auto; background: var(--accent); color: #fff;
+        font-size: 0.65rem; padding: 2px 8px; border-radius: 50px; font-weight: 700;
+    }
+    .sidebar-footer {
+        padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-footer .nav-item {
+        color: rgba(255,255,255,0.4); font-size: 0.82rem;
+    }
+    .sidebar-overlay {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+        position: fixed; top: 0; right: 0; left: var(--sidebar-width);
+        height: var(--topbar-height); background: #fff;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 28px; z-index: 100;
+        transition: left 0.3s;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .hamburger {
+        display: none; background: none; border: none;
+        font-size: 1.4rem; cursor: pointer; padding: 6px;
+        color: var(--text); border-radius: 8px;
+    }
+    .hamburger:hover { background: var(--off); }
+    .topbar-search {
+        position: relative;
+    }
+    .topbar-search input {
+        padding: 10px 16px 10px 40px;
+        border: 1.5px solid #e5e7eb; border-radius: 12px;
+        font-size: 0.88rem; width: 320px;
+        background: var(--off);
+        font-family: 'DM Sans', sans-serif;
+        transition: border-color 0.3s, width 0.3s;
+        outline: none;
+    }
+    .topbar-search input:focus {
+        border-color: var(--teal); width: 380px;
+    }
+    .topbar-search .search-icon {
+        position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+        color: var(--gray); font-size: 0.9rem; pointer-events: none;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-bell {
+        position: relative; background: none; border: none;
+        font-size: 1.3rem; cursor: pointer; padding: 8px;
+        border-radius: 10px; transition: background 0.2s;
+    }
+    .topbar-bell:hover { background: var(--off); }
+    .topbar-bell .bell-count {
+        position: absolute; top: 2px; right: 2px;
+        background: var(--accent); color: #fff;
+        font-size: 0.6rem; font-weight: 800;
+        width: 18px; height: 18px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid #fff;
+    }
+    .topbar-user {
+        display: flex; align-items: center; gap: 10px;
+        cursor: pointer; position: relative; padding: 6px 10px;
+        border-radius: 12px; transition: background 0.2s;
+    }
+    .topbar-user:hover { background: var(--off); }
+    .topbar-avatar {
+        width: 36px; height: 36px; border-radius: 10px;
+        background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 700; font-size: 0.8rem;
+    }
+    .topbar-user-info { text-align: left; }
+    .topbar-user-info .name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .topbar-user-info .role { font-size: 0.7rem; color: var(--gray); }
+    .user-dropdown {
+        position: absolute; top: 100%; right: 0;
+        background: #fff; border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        border: 1px solid rgba(0,0,0,0.06);
+        min-width: 180px; padding: 8px;
+        display: none; z-index: 200;
+        animation: fadeIn 0.2s;
+    }
+    .user-dropdown.show { display: block; }
+    .user-dropdown a {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 14px; border-radius: 8px;
+        color: var(--text); font-size: 0.85rem; text-decoration: none;
+        transition: background 0.15s; cursor: pointer;
+    }
+    .user-dropdown a:hover { background: var(--off); }
+    .user-dropdown a.danger { color: var(--error); }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+        margin-left: var(--sidebar-width); margin-top: var(--topbar-height);
+        padding: 28px; min-height: calc(100vh - var(--topbar-height));
+        transition: margin-left 0.3s;
+    }
+    .page-section { display: none; animation: fadeIn 0.35s; }
+    .page-section.active { display: block; }
+
+    .page-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+    }
+    .page-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem; color: var(--navy);
+    }
+    .page-header p {
+        color: var(--gray); font-size: 0.88rem; margin-top: 2px;
+    }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 20px; margin-bottom: 28px;
+    }
+    .stat-card {
+        background: #fff; border-radius: 16px; padding: 24px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.04);
+        display: flex; align-items: flex-start; gap: 16px;
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+    }
+    .stat-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; flex-shrink: 0;
+    }
+    .stat-icon.blue { background: rgba(0,180,216,0.1); color: var(--teal); }
+    .stat-icon.green { background: rgba(16,185,129,0.1); color: var(--green); }
+    .stat-icon.orange { background: rgba(249,115,22,0.1); color: var(--orange); }
+    .stat-icon.purple { background: rgba(139,92,246,0.1); color: var(--purple); }
+    .stat-info { flex: 1; }
+    .stat-number {
+        font-size: 1.65rem; font-weight: 800; color: var(--navy);
+        line-height: 1.1; margin-bottom: 2px;
+    }
+    .stat-label {
+        font-size: 0.8rem; color: var(--gray); font-weight: 500;
+    }
+    .stat-trend {
+        font-size: 0.72rem; font-weight: 700; margin-top: 6px;
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 3px 8px; border-radius: 50px;
+    }
+    .stat-trend.up { background: rgba(16,185,129,0.1); color: #059669; }
+    .stat-trend.down { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+    /* ── DASHBOARD GRID ── */
+    .dash-grid {
+        display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 28px;
+    }
+
+    /* ── CARD ── */
+    .card {
+        background: #fff; border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.04);
+        overflow: hidden;
+    }
+    .card-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .card-header h3 {
+        font-size: 1rem; font-weight: 700; color: var(--navy);
+    }
+    .card-body { padding: 24px; }
+
+    /* ── REVENUE CHART (CSS bar chart) ── */
+    .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 200px; padding-top: 10px; }
+    .bar-col {
+        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        position: relative;
+    }
+    .bar {
+        width: 100%; border-radius: 8px 8px 4px 4px;
+        background: linear-gradient(180deg, var(--teal), var(--teal-dark));
+        min-height: 4px; transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative; cursor: pointer;
+    }
+    .bar:hover { opacity: 0.85; }
+    .bar .bar-tooltip {
+        position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+        background: var(--navy); color: #fff; font-size: 0.7rem; font-weight: 700;
+        padding: 4px 10px; border-radius: 6px;
+        white-space: nowrap; opacity: 0;
+        pointer-events: none; transition: opacity 0.2s;
+    }
+    .bar:hover .bar-tooltip { opacity: 1; }
+    .bar-label {
+        font-size: 0.72rem; color: var(--gray); font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    /* ── HORIZONTAL BAR CHART ── */
+    .h-bar-chart { display: flex; flex-direction: column; gap: 14px; }
+    .h-bar-row {
+        display: flex; align-items: center; gap: 12px;
+    }
+    .h-bar-name {
+        width: 130px; font-size: 0.78rem; font-weight: 600; color: var(--text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .h-bar-track {
+        flex: 1; height: 24px; background: var(--off); border-radius: 12px; overflow: hidden;
+        position: relative;
+    }
+    .h-bar-fill {
+        height: 100%; border-radius: 12px;
+        background: linear-gradient(90deg, var(--teal), var(--teal-dark));
+        transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: flex; align-items: center; justify-content: flex-end;
+        padding-right: 8px;
+    }
+    .h-bar-val {
+        font-size: 0.7rem; font-weight: 700; color: #fff;
+    }
+
+    /* ── TABLE ── */
+    .table-wrap {
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .data-table {
+        width: 100%; border-collapse: separate; border-spacing: 0;
+        font-size: 0.85rem;
+    }
+    .data-table thead th {
+        background: var(--off); padding: 12px 16px;
+        text-align: left; font-size: 0.75rem; font-weight: 700;
+        color: var(--gray); text-transform: uppercase; letter-spacing: 0.06em;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        position: sticky; top: 0; z-index: 1;
+    }
+    .data-table thead th:first-child { border-radius: 10px 0 0 0; }
+    .data-table thead th:last-child { border-radius: 0 10px 0 0; }
+    .data-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.04);
+        color: var(--text); vertical-align: middle;
+    }
+    .data-table tbody tr {
+        transition: background 0.15s;
+    }
+    .data-table tbody tr:hover { background: rgba(0,180,216,0.03); }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+
+    /* ── ACTION BUTTONS ── */
+    .action-btn {
+        background: none; border: 1.5px solid #e5e7eb;
+        border-radius: 8px; padding: 6px 10px; cursor: pointer;
+        font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;
+        transition: all 0.2s; color: var(--gray);
+        font-family: 'DM Sans', sans-serif;
+    }
+    .action-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .action-btn.danger:hover { border-color: var(--error); color: var(--error); }
+
+    /* ── STATUS SELECT ── */
+    .status-select {
+        padding: 6px 10px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+        font-size: 0.78rem; cursor: pointer; background: #fff;
+        font-family: 'DM Sans', sans-serif; color: var(--text);
+        outline: none; transition: border-color 0.2s;
+    }
+    .status-select:focus { border-color: var(--teal); }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+        display: flex; align-items: center; gap: 12px;
+        margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .filter-bar input,
+    .filter-bar select {
+        padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px;
+        font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+        background: #fff; outline: none; transition: border-color 0.2s;
+    }
+    .filter-bar input:focus,
+    .filter-bar select:focus { border-color: var(--teal); }
+    .filter-bar input { min-width: 220px; }
+
+    /* ── PAGINATION ── */
+    .pagination {
+        display: flex; align-items: center; justify-content: center;
+        gap: 6px; margin-top: 20px; padding-top: 16px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    .page-btn {
+        padding: 8px 14px; border: 1.5px solid #e5e7eb;
+        border-radius: 8px; background: #fff; cursor: pointer;
+        font-size: 0.82rem; font-weight: 600; color: var(--gray);
+        transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    }
+    .page-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .page-btn.active {
+        background: var(--teal); color: #fff; border-color: var(--teal);
+    }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-info {
+        font-size: 0.8rem; color: var(--gray); margin: 0 8px;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        display: none; align-items: center; justify-content: center;
+        z-index: 5000; padding: 24px;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+        background: #fff; border-radius: 20px;
+        max-width: 600px; width: 100%; max-height: 85vh;
+        overflow-y: auto; animation: slideUp 0.35s;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 24px 28px 16px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .modal-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.2rem; color: var(--navy);
+    }
+    .modal-close {
+        background: var(--off); border: none; width: 36px; height: 36px;
+        border-radius: 10px; font-size: 1.1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s; color: var(--gray);
+    }
+    .modal-close:hover { background: rgba(239,68,68,0.1); color: var(--error); }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer {
+        padding: 16px 28px 24px;
+        display: flex; justify-content: flex-end; gap: 10px;
+    }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+        display: block; font-size: 0.8rem; font-weight: 600;
+        color: var(--navy); margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb;
+        border-radius: 10px; font-size: 0.88rem;
+        font-family: 'DM Sans', sans-serif;
+        background: #fff; outline: none;
+        transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--teal); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── TOGGLE SWITCH ── */
+    .toggle-switch {
+        position: relative; display: inline-block; width: 42px; height: 24px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+        position: absolute; inset: 0; cursor: pointer;
+        background: #e5e7eb; border-radius: 24px;
+        transition: background 0.3s;
+    }
+    .toggle-slider::before {
+        content: ''; position: absolute;
+        width: 18px; height: 18px; border-radius: 50%;
+        background: #fff; left: 3px; bottom: 3px;
+        transition: transform 0.3s;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+        background: var(--teal);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(18px);
+    }
+
+    /* ── STATUS TIMELINE ── */
+    .status-timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-item {
+        display: flex; gap: 14px; position: relative;
+        padding-bottom: 20px;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot {
+        width: 32px; height: 32px; border-radius: 50%;
+        background: var(--off); display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; flex-shrink: 0; position: relative; z-index: 1;
+        border: 2px solid #e5e7eb;
+    }
+    .timeline-item.completed .timeline-dot {
+        background: rgba(0,180,216,0.1); border-color: var(--teal);
+    }
+    .timeline-item:not(:last-child)::after {
+        content: ''; position: absolute;
+        left: 15px; top: 32px; width: 2px;
+        height: calc(100% - 32px);
+        background: #e5e7eb;
+    }
+    .timeline-item.completed:not(:last-child)::after {
+        background: var(--teal);
+    }
+    .timeline-info { flex: 1; padding-top: 4px; }
+    .timeline-info .tl-title { font-weight: 600; font-size: 0.88rem; color: var(--text); }
+    .timeline-info .tl-time { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+
+    /* ── SETTINGS ── */
+    .settings-card {
+        background: #fff; border-radius: 16px; padding: 28px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.04);
+        margin-bottom: 20px;
+    }
+    .settings-card h3 {
+        font-size: 1rem; font-weight: 700; color: var(--navy);
+        margin-bottom: 20px; padding-bottom: 12px;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .danger-zone {
+        border: 1.5px solid rgba(239,68,68,0.2);
+        background: rgba(239,68,68,0.02);
+    }
+    .danger-zone h3 { color: var(--error); border-bottom-color: rgba(239,68,68,0.15); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1200px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .dash-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-overlay.open { display: block; }
+        .topbar { left: 0; }
+        .main-content { margin-left: 0; }
+        .hamburger { display: flex; }
+        .topbar-search input { width: 160px; }
+        .topbar-search input:focus { width: 200px; }
+        .topbar-user-info { display: none; }
+        .stats-grid { grid-template-columns: 1fr 1fr; }
+        .page-header { flex-direction: column; align-items: flex-start; }
+        .filter-bar { flex-direction: column; align-items: stretch; }
+        .filter-bar input { min-width: auto; }
+        .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .main-content { padding: 16px; }
+        .login-card { margin: 16px; padding: 32px 24px; }
+    }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN SCREEN ═══════════════ -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-bg-shapes">
+        <span></span><span></span><span></span>
+    </div>
+    <div class="login-card" id="loginCard">
+        <div class="login-logo">
+            <div class="logo-icon">🩺</div>
+            <h1>Doorstep Dx Admin</h1>
+            <p>Sign in to your dashboard</p>
+        </div>
+        <div class="login-error" id="loginError">Invalid username or password</div>
+        <form id="loginForm" autocomplete="off">
+            <div class="login-field">
+                <label for="loginUser">Username</label>
+                <input type="text" id="loginUser" placeholder="Enter username" autofocus>
+            </div>
+            <div class="login-field">
+                <label for="loginPass">Password</label>
+                <input type="password" id="loginPass" placeholder="Enter password">
+            </div>
+            <label class="login-remember">
+                <input type="checkbox" id="loginRemember">
+                <span>Remember me</span>
+            </label>
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span class="spinner"></span>
+                <span class="btn-text">Sign In</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ═══════════════ ADMIN APP ═══════════════ -->
+<div class="admin-app" id="adminApp">
+    <!-- ── SIDEBAR ── -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="slogo">🩺</div>
+            <div class="slogo-text">
+                <h2>Doorstep Dx</h2>
+                <span>Admin Panel</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+            <button class="nav-item active" data-page="dashboard">
+                <span class="nav-icon">📊</span> Dashboard
+            </button>
+            <button class="nav-item" data-page="bookings">
+                <span class="nav-icon">📋</span> Bookings
+                <span class="nav-badge" id="bookingsBadge">0</span>
+            </button>
+            <button class="nav-item" data-page="tests">
+                <span class="nav-icon">🔬</span> Tests
+            </button>
+            <button class="nav-item" data-page="coupons">
+                <span class="nav-icon">🎟️</span> Coupons
+            </button>
+            <div class="nav-label">People</div>
+            <button class="nav-item" data-page="patients">
+                <span class="nav-icon">👥</span> Patients
+            </button>
+            <div class="nav-label">System</div>
+            <button class="nav-item" data-page="settings">
+                <span class="nav-icon">⚙️</span> Settings
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="nav-item" id="sidebarCollapse" style="justify-content:center;">
+                <span class="nav-icon">◀</span> Collapse
+            </button>
+        </div>
+    </aside>
+
+    <!-- ── TOPBAR ── -->
+    <header class="topbar" id="topbar">
+        <div class="topbar-left">
+            <button class="hamburger" id="hamburgerBtn">☰</button>
+            <div class="topbar-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="globalSearch" placeholder="Search bookings, patients, tests...">
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="topbar-bell" id="bellBtn">
+                🔔<span class="bell-count" id="bellCount">3</span>
+            </button>
+            <div class="topbar-user" id="topbarUser">
+                <div class="topbar-avatar">AD</div>
+                <div class="topbar-user-info">
+                    <div class="name">Admin</div>
+                    <div class="role">Super Admin</div>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <a onclick="navigateTo('settings')">⚙️ Settings</a>
+                    <a class="danger" onclick="doLogout()">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="main-content" id="mainContent">
+
+        <!-- ═══ DASHBOARD HOME ═══ -->
+        <section class="page-section active" id="page-dashboard">
+            <div class="page-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Welcome back! Here's your overview.</p>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📦</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statTotal">0</div>
+                        <div class="stat-label">Total Bookings</div>
+                        <div class="stat-trend up">↑ 12%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">💰</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statRevenue">₹0</div>
+                        <div class="stat-label">Today's Revenue</div>
+                        <div class="stat-trend up">↑ 8%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">⏳</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statActive">0</div>
+                        <div class="stat-label">Active Orders</div>
+                        <div class="stat-trend down">↓ 3%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="statCompletion">0%</div>
+                        <div class="stat-label">Completion Rate</div>
+                        <div class="stat-trend up">↑ 5%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Chart + Popular Tests -->
+            <div class="dash-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Revenue – Last 7 Days</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="bar-chart" id="revenueChart"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Popular Tests</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="h-bar-chart" id="popularTests"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Bookings</h3>
+                    <button class="btn btn-outline" style="padding:7px 16px;font-size:0.8rem;" onclick="navigateTo('bookings')">View All →</button>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div class="table-wrap">
+                        <table class="data-table" id="recentBookingsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th><th>Patient</th><th>Test</th><th>Date</th><th>Amount</th><th>Status</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ BOOKINGS PAGE ═══ -->
+        <section class="page-section" id="page-bookings">
+            <div class="page-header">
+                <div>
+                    <h1>Bookings</h1>
+                    <p>Manage all test bookings</p>
+                </div>
+            </div>
+            <div class="filter-bar" id="bookingsFilter">
+                <input type="text" id="bookSearchInput" placeholder="🔍 Search by name, ID, phone...">
+                <select id="bookStatusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="on-the-way">On the Way</option>
+                    <option value="arrived">Arrived</option>
+                    <option value="collected">Collected</option>
+                    <option value="report-ready">Report Ready</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <input type="date" id="bookDateFrom" title="From date">
+                <input type="date" id="bookDateTo" title="To date">
+            </div>
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-wrap">
+                        <table class="data-table" id="allBookingsTable">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th><th>Patient</th><th>Phone</th><th>Test</th><th>Lab</th><th>Date</th><th>Time</th><th>Amount</th><th>Status</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="bookingsPagination"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ TESTS PAGE ═══ -->
+        <section class="page-section" id="page-tests">
+            <div class="page-header">
+                <div>
+                    <h1>Tests</h1>
+                    <p>Manage diagnostic tests catalog</p>
+                </div>
+                <button class="btn btn-primary" onclick="openTestModal()">+ Add New Test</button>
+            </div>
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-wrap">
+                        <table class="data-table" id="testsTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th><th>Price</th><th>Parameters</th><th>Category</th><th>Active</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ COUPONS PAGE ═══ -->
+        <section class="page-section" id="page-coupons">
+            <div class="page-header">
+                <div>
+                    <h1>Coupons</h1>
+                    <p>Manage discount coupons</p>
+                </div>
+                <button class="btn btn-primary" onclick="openCouponModal()">+ Add New Coupon</button>
+            </div>
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-wrap">
+                        <table class="data-table" id="couponsTable">
+                            <thead>
+                                <tr>
+                                    <th>Code</th><th>Type</th><th>Discount</th><th>Min Order</th><th>Usage</th><th>Active</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ PATIENTS PAGE ═══ -->
+        <section class="page-section" id="page-patients">
+            <div class="page-header">
+                <div>
+                    <h1>Patients</h1>
+                    <p>View all patients from bookings</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body" style="padding:0;">
+                    <div class="table-wrap">
+                        <table class="data-table" id="patientsTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th><th>Phone</th><th>Total Bookings</th><th>Last Test</th><th>Last Visit</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ SETTINGS PAGE ═══ -->
+        <section class="page-section" id="page-settings">
+            <div class="page-header">
+                <div>
+                    <h1>Settings</h1>
+                    <p>Configure your platform</p>
+                </div>
+            </div>
+            <div class="settings-card">
+                <h3>🏢 Business Information</h3>
+                <form id="settingsForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bizName">Business Name</label>
+                            <input type="text" id="bizName" value="Doorstep Diagnostics">
+                        </div>
+                        <div class="form-group">
+                            <label for="bizPhone">Phone Number</label>
+                            <input type="text" id="bizPhone" value="+91 1800-123-4567">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bizEmail">Email Address</label>
+                            <input type="email" id="bizEmail" value="admin@doorstepdx.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="bizAddress">Address</label>
+                            <input type="text" id="bizAddress" value="Mumbai, Maharashtra, India">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+            <div class="settings-card">
+                <h3>📊 Data Management</h3>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button class="btn btn-outline" onclick="handleSeedData()">🌱 Seed Demo Data</button>
+                    <button class="btn btn-outline" onclick="exportData()">📥 Export Data (JSON)</button>
+                </div>
+            </div>
+            <div class="settings-card danger-zone">
+                <h3>⚠️ Danger Zone</h3>
+                <p style="color:var(--gray);font-size:0.85rem;margin-bottom:16px;">These actions are irreversible. Please proceed with caution.</p>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button class="btn btn-danger" onclick="handleClearData()">🗑️ Clear All Data</button>
+                    <button class="btn btn-danger" onclick="doLogout()" style="background:linear-gradient(135deg,#6b7280,#4b5563);">🚪 Logout</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- ═══════════════ MODALS ═══════════════ -->
+
+<!-- Booking Detail Modal -->
+<div class="modal-overlay" id="bookingDetailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Booking Details</h2>
+            <button class="modal-close" onclick="closeModal('bookingDetailModal')">✕</button>
+        </div>
+        <div class="modal-body" id="bookingDetailBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('bookingDetailModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Test Add/Edit Modal -->
+<div class="modal-overlay" id="testModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="testModalTitle">Add New Test</h2>
+            <button class="modal-close" onclick="closeModal('testModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="testForm">
+                <input type="hidden" id="testEditId">
+                <div class="form-group">
+                    <label for="testName">Test Name</label>
+                    <input type="text" id="testName" required placeholder="e.g., Complete Blood Count">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="testPrice">Price (₹)</label>
+                        <input type="number" id="testPrice" required min="1" placeholder="e.g., 499">
+                    </div>
+                    <div class="form-group">
+                        <label for="testCategory">Category</label>
+                        <select id="testCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Blood">Blood</option>
+                            <option value="Hormone">Hormone</option>
+                            <option value="Metabolic">Metabolic</option>
+                            <option value="Heart">Heart</option>
+                            <option value="Organ">Organ</option>
+                            <option value="Nutrition">Nutrition</option>
+                            <option value="Package">Package</option>
+                            <option value="Immune">Immune</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="testParams">Parameters (comma-separated)</label>
+                    <textarea id="testParams" rows="3" placeholder="e.g., Hemoglobin, WBC, RBC"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('testModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveTest()">Save Test</button>
+        </div>
+    </div>
+</div>
+
+<!-- Coupon Add/Edit Modal -->
+<div class="modal-overlay" id="couponModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="couponModalTitle">Add New Coupon</h2>
+            <button class="modal-close" onclick="closeModal('couponModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="couponForm">
+                <input type="hidden" id="couponEditCode">
+                <div class="form-group">
+                    <label for="couponCode">Coupon Code</label>
+                    <input type="text" id="couponCode" required placeholder="e.g., SAVE20" style="text-transform:uppercase;">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="couponType">Discount Type</label>
+                        <select id="couponType" required>
+                            <option value="percent">Percentage (%)</option>
+                            <option value="flat">Flat Amount (₹)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="couponDisc">Discount Value</label>
+                        <input type="number" id="couponDisc" required min="1" placeholder="e.g., 20">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="couponMin">Minimum Order (₹)</label>
+                        <input type="number" id="couponMin" value="0" min="0" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="couponLabel">Display Label</label>
+                        <input type="text" id="couponLabel" placeholder="e.g., 20% OFF">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('couponModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCoupon()">Save Coupon</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/common.js"></script>
+<script>
+/* ═══════════════════════════════════════════════
+   ADMIN DASHBOARD — PAGE LOGIC
+   ═══════════════════════════════════════════════ */
+
+// ─── STATE ───
+let currentPage = 'dashboard';
+let bookingsPage = 1;
+const ITEMS_PER_PAGE = 10;
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', () => {
+    if (Storage.get('dd_admin_auth')) {
+        showDashboard();
+    }
+    initLogin();
+    initSidebar();
+    initTopbar();
+    initBookingsFilter();
+    initSettingsForm();
+});
+
+// ═══════════════ LOGIN ═══════════════
+function initLogin() {
+    const form = qs('#loginForm');
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = qs('#loginUser').value.trim();
+        const pass = qs('#loginPass').value.trim();
+        const btn = qs('#loginBtn');
+        const errorEl = qs('#loginError');
+        const card = qs('#loginCard');
+
+        errorEl.classList.remove('show');
+        btn.classList.add('loading');
+        btn.disabled = true;
+
+        setTimeout(() => {
+            if (user === 'admin' && pass === 'admin123') {
+                Storage.set('dd_admin_auth', true);
+                showDashboard();
+            } else {
+                errorEl.classList.add('show');
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 600);
+            }
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }, 1200);
+    });
+}
+
+function showDashboard() {
+    qs('#loginScreen').classList.add('hidden-login');
+    qs('#adminApp').classList.add('active');
+    seedDemoBookings(15);
+    renderDashboard();
+}
+
+function doLogout() {
+    Storage.remove('dd_admin_auth');
+    qs('#loginScreen').classList.remove('hidden-login');
+    qs('#adminApp').classList.remove('active');
+    qs('#loginUser').value = '';
+    qs('#loginPass').value = '';
+    qs('#loginError').classList.remove('show');
+    closeAllDropdowns();
+}
+
+// ═══════════════ SIDEBAR ═══════════════
+function initSidebar() {
+    qsa('.nav-item[data-page]').forEach(item => {
+        item.addEventListener('click', () => {
+            navigateTo(item.dataset.page);
+            // Close mobile sidebar
+            qs('#sidebar').classList.remove('open');
+            qs('#sidebarOverlay').classList.remove('open');
+        });
+    });
+
+    qs('#hamburgerBtn').addEventListener('click', () => {
+        qs('#sidebar').classList.toggle('open');
+        qs('#sidebarOverlay').classList.toggle('open');
+    });
+
+    qs('#sidebarOverlay').addEventListener('click', () => {
+        qs('#sidebar').classList.remove('open');
+        qs('#sidebarOverlay').classList.remove('open');
+    });
+}
+
+function navigateTo(page) {
+    currentPage = page;
+    // Update nav
+    qsa('.nav-item[data-page]').forEach(n => n.classList.remove('active'));
+    const activeNav = qs(`.nav-item[data-page="${page}"]`);
+    if (activeNav) activeNav.classList.add('active');
+
+    // Show section
+    qsa('.page-section').forEach(s => s.classList.remove('active'));
+    const section = qs(`#page-${page}`);
+    if (section) section.classList.add('active');
+
+    // Render content
+    switch (page) {
+        case 'dashboard': renderDashboard(); break;
+        case 'bookings': bookingsPage = 1; renderBookings(); break;
+        case 'tests': renderTests(); break;
+        case 'coupons': renderCoupons(); break;
+        case 'patients': renderPatients(); break;
+        case 'settings': break;
+    }
+
+    // Close mobile sidebar
+    qs('#sidebar').classList.remove('open');
+    qs('#sidebarOverlay').classList.remove('open');
+    closeAllDropdowns();
+}
+
+// ═══════════════ TOPBAR ═══════════════
+function initTopbar() {
+    qs('#topbarUser').addEventListener('click', (e) => {
+        e.stopPropagation();
+        qs('#userDropdown').classList.toggle('show');
+    });
+    document.addEventListener('click', closeAllDropdowns);
+
+    // Global search
+    qs('#globalSearch').addEventListener('input', (e) => {
+        const q = e.target.value.trim().toLowerCase();
+        if (q.length >= 2 && currentPage !== 'bookings') {
+            navigateTo('bookings');
+            qs('#bookSearchInput').value = q;
+            renderBookings();
+        } else if (currentPage === 'bookings') {
+            qs('#bookSearchInput').value = q;
+            renderBookings();
+        }
+    });
+}
+
+function closeAllDropdowns() {
+    qs('#userDropdown').classList.remove('show');
+}
+
+// ═══════════════ DASHBOARD HOME ═══════════════
+function renderDashboard() {
+    const stats = BookingStore.getStats();
+    const bookings = BookingStore.getAll();
+
+    // Stat cards
+    qs('#statTotal').textContent = stats.total;
+    const todayRevenue = bookings
+        .filter(b => new Date(b.createdAt).toDateString() === new Date().toDateString())
+        .reduce((sum, b) => sum + (b.total || 0), 0);
+    qs('#statRevenue').textContent = formatCurrency(todayRevenue);
+    qs('#statActive').textContent = stats.active;
+    const completionRate = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    qs('#statCompletion').textContent = completionRate + '%';
+
+    // Active bookings badge
+    qs('#bookingsBadge').textContent = stats.active;
+
+    renderRevenueChart(bookings);
+    renderPopularTests(bookings);
+    renderRecentBookings(bookings);
+}
+
+function renderRevenueChart(bookings) {
+    const container = qs('#revenueChart');
+    const days = [];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toDateString();
+        const rev = bookings
+            .filter(b => new Date(b.createdAt).toDateString() === key)
+            .reduce((sum, b) => sum + (b.total || 0), 0);
+        days.push({ label: dayNames[d.getDay()], value: rev });
+    }
+
+    const maxVal = Math.max(...days.map(d => d.value), 1);
+
+    container.innerHTML = days.map(d => {
+        const pct = (d.value / maxVal) * 100;
+        return `<div class="bar-col">
+            <div class="bar" style="height:${Math.max(pct, 3)}%">
+                <div class="bar-tooltip">${formatCurrency(d.value)}</div>
+            </div>
+            <span class="bar-label">${d.label}</span>
+        </div>`;
+    }).join('');
+
+    // Animate bars in
+    setTimeout(() => {
+        container.querySelectorAll('.bar').forEach(bar => {
+            bar.style.height = bar.style.height;
+        });
+    }, 100);
+}
+
+function renderPopularTests(bookings) {
+    const container = qs('#popularTests');
+    const testCounts = {};
+    bookings.forEach(b => {
+        const name = b.test?.name || 'Unknown';
+        testCounts[name] = (testCounts[name] || 0) + 1;
+    });
+
+    const sorted = Object.entries(testCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const max = sorted.length > 0 ? sorted[0][1] : 1;
+
+    if (sorted.length === 0) {
+        container.innerHTML = '<p style="color:var(--gray);font-size:0.85rem;text-align:center;">No data yet</p>';
+        return;
+    }
+
+    container.innerHTML = sorted.map(([name, count]) => {
+        const pct = (count / max) * 100;
+        // Shorten name
+        const shortName = name.length > 18 ? name.slice(0, 18) + '…' : name;
+        return `<div class="h-bar-row">
+            <span class="h-bar-name" title="${name}">${shortName}</span>
+            <div class="h-bar-track">
+                <div class="h-bar-fill" style="width:${pct}%">
+                    <span class="h-bar-val">${count}</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderRecentBookings(bookings) {
+    const tbody = qs('#recentBookingsTable tbody');
+    const recent = bookings.slice(0, 10);
+
+    if (recent.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:32px;">No bookings yet</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = recent.map(b => `
+        <tr>
+            <td><strong style="font-size:0.8rem;color:var(--teal);">${b.id}</strong></td>
+            <td>${b.name}</td>
+            <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.test?.name || '—'}</td>
+            <td>${formatDate(b.date)}</td>
+            <td><strong>${formatCurrency(b.total || 0)}</strong></td>
+            <td>${statusBadge(b.status)}</td>
+            <td>
+                <button class="action-btn" onclick="viewBookingDetail('${b.id}')" title="View Details">👁️</button>
+                <select class="status-select" onchange="updateBookingStatus('${b.id}', this.value)" style="margin-left:4px;">
+                    ${statusOptions(b.status)}
+                </select>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// ═══════════════ BOOKINGS PAGE ═══════════════
+function initBookingsFilter() {
+    qs('#bookSearchInput').addEventListener('input', () => { bookingsPage = 1; renderBookings(); });
+    qs('#bookStatusFilter').addEventListener('change', () => { bookingsPage = 1; renderBookings(); });
+    qs('#bookDateFrom').addEventListener('change', () => { bookingsPage = 1; renderBookings(); });
+    qs('#bookDateTo').addEventListener('change', () => { bookingsPage = 1; renderBookings(); });
+}
+
+function getFilteredBookings() {
+    let bookings = BookingStore.getAll();
+    const search = qs('#bookSearchInput').value.trim().toLowerCase();
+    const status = qs('#bookStatusFilter').value;
+    const from = qs('#bookDateFrom').value;
+    const to = qs('#bookDateTo').value;
+
+    if (search) {
+        bookings = bookings.filter(b =>
+            (b.name || '').toLowerCase().includes(search) ||
+            (b.id || '').toLowerCase().includes(search) ||
+            (b.phone || '').includes(search) ||
+            (b.test?.name || '').toLowerCase().includes(search)
+        );
+    }
+    if (status) {
+        bookings = bookings.filter(b => b.status === status);
+    }
+    if (from) {
+        bookings = bookings.filter(b => b.date >= from);
+    }
+    if (to) {
+        bookings = bookings.filter(b => b.date <= to);
+    }
+
+    return bookings;
+}
+
+function renderBookings() {
+    const filtered = getFilteredBookings();
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / ITEMS_PER_PAGE) || 1;
+    if (bookingsPage > totalPages) bookingsPage = totalPages;
+
+    const start = (bookingsPage - 1) * ITEMS_PER_PAGE;
+    const paged = filtered.slice(start, start + ITEMS_PER_PAGE);
+
+    const tbody = qs('#allBookingsTable tbody');
+    if (paged.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--gray);padding:32px;">No bookings found</td></tr>';
+    } else {
+        tbody.innerHTML = paged.map(b => `
+            <tr>
+                <td><strong style="font-size:0.8rem;color:var(--teal);">${b.id}</strong></td>
+                <td>${b.name}</td>
+                <td>${b.phone || '—'}</td>
+                <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${b.test?.name || ''}">${b.test?.name || '—'}</td>
+                <td style="font-size:0.8rem;">${b.lab || '—'}</td>
+                <td>${formatDate(b.date)}</td>
+                <td style="font-size:0.8rem;">${b.time || '—'}</td>
+                <td><strong>${formatCurrency(b.total || 0)}</strong></td>
+                <td>${statusBadge(b.status)}</td>
+                <td style="white-space:nowrap;">
+                    <button class="action-btn" onclick="viewBookingDetail('${b.id}')" title="View">👁️</button>
+                    <select class="status-select" onchange="updateBookingStatus('${b.id}', this.value)" style="margin-left:4px;">
+                        ${statusOptions(b.status)}
+                    </select>
+                    ${b.status !== 'cancelled' ? `<button class="action-btn danger" onclick="cancelBooking('${b.id}')" title="Cancel" style="margin-left:4px;">✕</button>` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Pagination
+    const pagDiv = qs('#bookingsPagination');
+    if (totalPages <= 1) {
+        pagDiv.innerHTML = `<span class="page-info">Showing ${total} booking${total !== 1 ? 's' : ''}</span>`;
+        return;
+    }
+
+    let pagHTML = `<button class="page-btn" onclick="goToBookingsPage(${bookingsPage - 1})" ${bookingsPage === 1 ? 'disabled' : ''}>‹ Prev</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (totalPages > 7 && i > 3 && i < totalPages - 1 && Math.abs(i - bookingsPage) > 1) {
+            if (i === 4 || i === totalPages - 2) pagHTML += '<span class="page-info">…</span>';
+            continue;
+        }
+        pagHTML += `<button class="page-btn ${i === bookingsPage ? 'active' : ''}" onclick="goToBookingsPage(${i})">${i}</button>`;
+    }
+    pagHTML += `<button class="page-btn" onclick="goToBookingsPage(${bookingsPage + 1})" ${bookingsPage === totalPages ? 'disabled' : ''}>Next ›</button>`;
+    pagDiv.innerHTML = pagHTML;
+}
+
+function goToBookingsPage(p) {
+    bookingsPage = p;
+    renderBookings();
+}
+
+function updateBookingStatus(id, newStatus) {
+    BookingStore.update(id, { status: newStatus });
+    if (toast) toast.success('Status Updated', `Booking ${id} is now "${newStatus}"`);
+    if (currentPage === 'dashboard') renderDashboard();
+    else renderBookings();
+}
+
+function cancelBooking(id) {
+    if (!confirm('Cancel this booking? This cannot be undone.')) return;
+    BookingStore.update(id, { status: 'cancelled' });
+    if (toast) toast.warning('Booking Cancelled', `Booking ${id} has been cancelled`);
+    renderBookings();
+}
+
+function viewBookingDetail(id) {
+    const b = BookingStore.getById(id);
+    if (!b) return;
+
+    const body = qs('#bookingDetailBody');
+    const stages = TRACKING_STAGES;
+    const currentIdx = stages.findIndex(s => s.id === b.status);
+
+    body.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">BOOKING ID</span><br><strong style="color:var(--teal);">${b.id}</strong></div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">STATUS</span><br>${statusBadge(b.status)}</div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">PATIENT</span><br><strong>${b.name}</strong></div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">PHONE</span><br>${b.phone || '—'}</div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">AGE / GENDER</span><br>${b.age || '—'} / ${b.gender || '—'}</div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">TEST</span><br>${b.test?.name || '—'}</div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">LAB</span><br>${b.lab || '—'}</div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">AMOUNT</span><br><strong>${formatCurrency(b.total || 0)}</strong></div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">DATE</span><br>${formatDate(b.date)}</div>
+            <div><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">TIME SLOT</span><br>${b.time || '—'}</div>
+            <div style="grid-column:1/-1;"><span style="font-size:0.75rem;color:var(--gray);font-weight:600;">ADDRESS</span><br>${b.address || '—'}</div>
+        </div>
+        ${b.phlebotomist ? `
+        <div style="background:var(--off);border-radius:12px;padding:16px;margin-bottom:24px;">
+            <span style="font-size:0.75rem;color:var(--gray);font-weight:600;">PHLEBOTOMIST</span><br>
+            <strong>${b.phlebotomist.name}</strong> · ${b.phlebotomist.phone} · ⭐ ${b.phlebotomist.rating}
+        </div>` : ''}
+        <h4 style="font-size:0.88rem;font-weight:700;color:var(--navy);margin-bottom:16px;">Status History</h4>
+        <div class="status-timeline">
+            ${(b.statusHistory || []).map((sh, idx) => {
+                const stageInfo = stages.find(s => s.id === sh.status) || { icon: '⏳', title: sh.status };
+                return `<div class="timeline-item completed">
+                    <div class="timeline-dot">${stageInfo.icon}</div>
+                    <div class="timeline-info">
+                        <div class="tl-title">${stageInfo.title}</div>
+                        <div class="tl-time">${formatDate(sh.time)} ${formatTime(sh.time)}</div>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>
+        <div style="margin-top:20px;">
+            <a href="index.html?track=${b.id}" target="_blank" class="btn btn-outline" style="font-size:0.82rem;">🔗 Open Tracking Page</a>
+        </div>
+    `;
+    openModal('bookingDetailModal');
+}
+
+// ═══════════════ TESTS PAGE ═══════════════
+function renderTests() {
+    const tests = TestStore.getAll();
+    const tbody = qs('#testsTable tbody');
+
+    tbody.innerHTML = tests.map(t => `
+        <tr>
+            <td><strong>${t.name}</strong></td>
+            <td>${formatCurrency(t.price)}</td>
+            <td style="max-width:220px;font-size:0.8rem;color:var(--gray);">${t.params || '—'}</td>
+            <td><span class="badge badge-blue">${t.category}</span></td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${t.active ? 'checked' : ''} onchange="toggleTest('${t.id}', this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </td>
+            <td>
+                <button class="action-btn" onclick="editTest('${t.id}')">✏️ Edit</button>
+                <button class="action-btn danger" onclick="deleteTest('${t.id}')" style="margin-left:4px;">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openTestModal(testId) {
+    qs('#testEditId').value = '';
+    qs('#testName').value = '';
+    qs('#testPrice').value = '';
+    qs('#testCategory').value = '';
+    qs('#testParams').value = '';
+    qs('#testModalTitle').textContent = 'Add New Test';
+    openModal('testModal');
+}
+
+function editTest(id) {
+    const t = TestStore.getAll().find(x => x.id === id);
+    if (!t) return;
+    qs('#testEditId').value = t.id;
+    qs('#testName').value = t.name;
+    qs('#testPrice').value = t.price;
+    qs('#testCategory').value = t.category;
+    qs('#testParams').value = t.params || '';
+    qs('#testModalTitle').textContent = 'Edit Test';
+    openModal('testModal');
+}
+
+function saveTest() {
+    const editId = qs('#testEditId').value;
+    const name = qs('#testName').value.trim();
+    const price = parseInt(qs('#testPrice').value);
+    const category = qs('#testCategory').value;
+    const params = qs('#testParams').value.trim();
+
+    if (!name || !price || !category) {
+        if (toast) toast.error('Missing Fields', 'Please fill in all required fields');
+        return;
+    }
+
+    if (editId) {
+        TestStore.update(editId, { name, price, category, params });
+        if (toast) toast.success('Test Updated', `${name} has been updated`);
+    } else {
+        TestStore.add({ name, price, category, params, active: true });
+        if (toast) toast.success('Test Added', `${name} has been added`);
+    }
+
+    closeModal('testModal');
+    renderTests();
+}
+
+function deleteTest(id) {
+    if (!confirm('Delete this test? This cannot be undone.')) return;
+    TestStore.delete(id);
+    if (toast) toast.warning('Test Deleted', 'The test has been removed');
+    renderTests();
+}
+
+function toggleTest(id, active) {
+    TestStore.update(id, { active });
+    if (toast) toast.info('Test Updated', `Test ${active ? 'activated' : 'deactivated'}`);
+}
+
+// ═══════════════ COUPONS PAGE ═══════════════
+function renderCoupons() {
+    const coupons = CouponStore.getAll();
+    const tbody = qs('#couponsTable tbody');
+
+    tbody.innerHTML = coupons.map(c => `
+        <tr>
+            <td><strong style="font-family:monospace;color:var(--teal);letter-spacing:0.05em;">${c.code}</strong></td>
+            <td><span class="badge ${c.type === 'percent' ? 'badge-purple' : 'badge-orange'}">${c.type === 'percent' ? 'Percent' : 'Flat'}</span></td>
+            <td><strong>${c.type === 'percent' ? c.disc + '%' : formatCurrency(c.disc)}</strong></td>
+            <td>${formatCurrency(c.min || 0)}</td>
+            <td>${c.usageCount || 0}</td>
+            <td>
+                <label class="toggle-switch">
+                    <input type="checkbox" ${c.active ? 'checked' : ''} onchange="toggleCoupon('${c.code}', this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+            </td>
+            <td>
+                <button class="action-btn" onclick="editCoupon('${c.code}')">✏️ Edit</button>
+                <button class="action-btn danger" onclick="deleteCoupon('${c.code}')" style="margin-left:4px;">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openCouponModal() {
+    qs('#couponEditCode').value = '';
+    qs('#couponCode').value = '';
+    qs('#couponCode').disabled = false;
+    qs('#couponType').value = 'percent';
+    qs('#couponDisc').value = '';
+    qs('#couponMin').value = '0';
+    qs('#couponLabel').value = '';
+    qs('#couponModalTitle').textContent = 'Add New Coupon';
+    openModal('couponModal');
+}
+
+function editCoupon(code) {
+    const c = CouponStore.getAll().find(x => x.code === code);
+    if (!c) return;
+    qs('#couponEditCode').value = c.code;
+    qs('#couponCode').value = c.code;
+    qs('#couponCode').disabled = true;
+    qs('#couponType').value = c.type;
+    qs('#couponDisc').value = c.disc;
+    qs('#couponMin').value = c.min || 0;
+    qs('#couponLabel').value = c.label || '';
+    qs('#couponModalTitle').textContent = 'Edit Coupon';
+    openModal('couponModal');
+}
+
+function saveCoupon() {
+    const editCode = qs('#couponEditCode').value;
+    const code = qs('#couponCode').value.trim().toUpperCase();
+    const type = qs('#couponType').value;
+    const disc = parseInt(qs('#couponDisc').value);
+    const min = parseInt(qs('#couponMin').value) || 0;
+    const label = qs('#couponLabel').value.trim() || (type === 'percent' ? disc + '% OFF' : '₹' + disc + ' OFF');
+
+    if (!code || !disc) {
+        if (toast) toast.error('Missing Fields', 'Please fill in code and discount value');
+        return;
+    }
+
+    if (editCode) {
+        CouponStore.update(editCode, { type, disc, min, label });
+        if (toast) toast.success('Coupon Updated', `${code} has been updated`);
+    } else {
+        CouponStore.add({ code, type, disc, min, label, active: true });
+        if (toast) toast.success('Coupon Added', `${code} has been created`);
+    }
+
+    closeModal('couponModal');
+    renderCoupons();
+}
+
+function deleteCoupon(code) {
+    if (!confirm(`Delete coupon "${code}"?`)) return;
+    CouponStore.delete(code);
+    if (toast) toast.warning('Coupon Deleted', `${code} has been removed`);
+    renderCoupons();
+}
+
+function toggleCoupon(code, active) {
+    CouponStore.update(code, { active });
+    if (toast) toast.info('Coupon Updated', `${code} ${active ? 'activated' : 'deactivated'}`);
+}
+
+// ═══════════════ PATIENTS PAGE ═══════════════
+function renderPatients() {
+    const bookings = BookingStore.getAll();
+    const map = {};
+
+    bookings.forEach(b => {
+        const key = b.phone || b.name;
+        if (!map[key]) {
+            map[key] = { name: b.name, phone: b.phone, bookings: 0, lastTest: null, lastVisit: null };
+        }
+        map[key].bookings++;
+        if (!map[key].lastVisit || new Date(b.createdAt) > new Date(map[key].lastVisit)) {
+            map[key].lastVisit = b.createdAt;
+            map[key].lastTest = b.test?.name || '—';
+        }
+    });
+
+    const patients = Object.values(map).sort((a, b) => b.bookings - a.bookings);
+    const tbody = qs('#patientsTable tbody');
+
+    if (patients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:32px;">No patients found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = patients.map(p => `
+        <tr>
+            <td><strong>${p.name}</strong></td>
+            <td>${p.phone || '—'}</td>
+            <td>${p.bookings}</td>
+            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.lastTest}">${p.lastTest || '—'}</td>
+            <td>${formatDate(p.lastVisit)}</td>
+        </tr>
+    `).join('');
+}
+
+// ═══════════════ SETTINGS ═══════════════
+function initSettingsForm() {
+    qs('#settingsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        Storage.set('dd_biz_settings', {
+            name: qs('#bizName').value,
+            phone: qs('#bizPhone').value,
+            email: qs('#bizEmail').value,
+            address: qs('#bizAddress').value
+        });
+        if (toast) toast.success('Settings Saved', 'Business information updated');
+    });
+
+    // Load saved settings
+    const saved = Storage.get('dd_biz_settings');
+    if (saved) {
+        if (saved.name) qs('#bizName').value = saved.name;
+        if (saved.phone) qs('#bizPhone').value = saved.phone;
+        if (saved.email) qs('#bizEmail').value = saved.email;
+        if (saved.address) qs('#bizAddress').value = saved.address;
+    }
+}
+
+function handleSeedData() {
+    seedDemoBookings(15);
+    if (toast) toast.success('Demo Data', 'Demo bookings have been seeded');
+    if (currentPage === 'dashboard') renderDashboard();
+}
+
+function handleClearData() {
+    if (!confirm('Are you sure you want to clear ALL data? This is irreversible!')) return;
+    if (!confirm('This will delete all bookings, tests, coupons, and settings. Continue?')) return;
+    Storage.remove('dd_bookings');
+    Storage.remove('dd_tests');
+    Storage.remove('dd_coupons');
+    Storage.remove('dd_biz_settings');
+    if (toast) toast.warning('Data Cleared', 'All data has been removed');
+    if (currentPage === 'dashboard') renderDashboard();
+}
+
+function exportData() {
+    const data = {
+        bookings: BookingStore.getAll(),
+        tests: TestStore.getAll(),
+        coupons: CouponStore.getAll(),
+        settings: Storage.get('dd_biz_settings'),
+        exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `doorstep-dx-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    if (toast) toast.success('Exported', 'Data has been downloaded as JSON');
+}
+
+// ═══════════════ HELPERS ═══════════════
+function statusBadge(status) {
+    const map = {
+        'confirmed': 'badge-blue',
+        'assigned': 'badge-yellow',
+        'on-the-way': 'badge-yellow',
+        'arrived': 'badge-yellow',
+        'collected': 'badge-orange',
+        'report-ready': 'badge-green',
+        'cancelled': 'badge-red'
+    };
+    const label = (status || 'unknown').replace(/-/g, ' ');
+    return `<span class="badge ${map[status] || 'badge-blue'}">${label}</span>`;
+}
+
+function statusOptions(current) {
+    const statuses = ['confirmed', 'assigned', 'on-the-way', 'arrived', 'collected', 'report-ready', 'cancelled'];
+    return statuses.map(s =>
+        `<option value="${s}" ${s === current ? 'selected' : ''}>${s.replace(/-/g, ' ')}</option>`
+    ).join('');
+}
+
+function openModal(id) {
+    qs(`#${id}`).classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+    qs(`#${id}`).classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// Close modals on overlay click
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+});
+
+// Close modals on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        qsa('.modal-overlay.show').forEach(m => {
+            m.classList.remove('show');
+        });
+        document.body.style.overflow = '';
+    }
+});
+</script>
+</body>
+</html>
